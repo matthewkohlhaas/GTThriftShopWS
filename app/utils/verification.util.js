@@ -11,9 +11,7 @@ exports.getUser = function(req) {
     var token = this.getToken(req);
     if (token) {
         try {
-            var user = jwt.verify(token, config.secret);
-            console.log(user);
-            return user;
+            return jwt.verify(token, config.secret);
         } catch(err) {
             return null;
         }

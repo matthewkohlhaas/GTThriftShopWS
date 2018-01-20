@@ -2,6 +2,7 @@ var verification = require('../utils/verification.util');
 var Listing = require('mongoose').model('Listing');
 
 exports.list = function(req, res, next) {
+    console.log(req.headers.authorization);
     if (!verification.verifyToken(req)) {
         return res.status(401).send('unauthorized');
     } else {

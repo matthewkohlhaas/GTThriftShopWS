@@ -1,10 +1,12 @@
 var jwt = require('jsonwebtoken');
 var config = require('../../config/config');
+var verification = require('../utils/verification.util');
 var User = require('mongoose').model('User');
 
 exports.createAccount = function(req, res) {
     if (!req.body.email || !req.body.password || !req.body.password || !req.body.lastName) {
-        res.json({success: false, msg: 'Please provide email and password.'});
+        // TODO customized messages and verification tests (regexes)
+        res.json({successful: false, text: 'Please provide email and password.'});
     } else {
         var newUser = new User({
             email: req.body.email,
@@ -15,21 +17,23 @@ exports.createAccount = function(req, res) {
         // save the user
         newUser.save(function(err) {
             if (err) {
-                return res.json({success: false, msg: 'Another account is already associated with that email address'});
+                return res.json({successful: false, text: 'Another account already uses that email address'});
             }
-            res.json({success: true, msg: 'Successfully created new user account.'});
+            res.json({successful: true, text: 'Successfully created a new user account.'});
         });
     }
 };
 
 exports.login = function(req, res) {
+    var failureMsg = 'Failed to log in. Incorrect email or password';
+
     User.findOne({
         email: req.body.email
     }, function(err, user) {
         if (err) {
             throw err;
         } else if (!user) {
-            res.status(401).send({success: false, msg: 'Authentication failed. User not found.'});
+            res.status(401).send({successful: false, text: failureMsg});
         } else {
             // check if password matches
             user.comparePassword(req.body.password, function(err, isMatch) {
@@ -37,14 +41,18 @@ exports.login = function(req, res) {
                     // if user is found and password is right create a token
                     var payload = user.toObject();
                     delete payload.password;
-                    console.log(payload);
                     var token = jwt.sign(payload, config.secret);
                     // return the information including token as JSON
-                    res.json({success: true, token: token});
+                    res.json({successful: true, text: 'Successfully logged in as ' + user.firstName + ' '
+                        + user.lastName + '.', token: token});
                 } else {
-                    res.status(401).send({success: false, msg: 'Authentication failed. Wrong password.'});
+                    res.status(401).send({successful: false, text: failureMsg});
                 }
             });
         }
     });
+};
+
+exports.verifyToken = function(req, res) {
+    res.send(verification.verifyToken(req));
 };

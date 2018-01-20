@@ -4,4 +4,6 @@ module.exports = function(app) {
     app.post('/create-account', users.createAccount);
 
     app.post('/login', users.login);
+
+    app.get('/verify', users.verifyToken);
 };
