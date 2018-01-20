@@ -2,7 +2,7 @@ var verification = require('../utils/verification.util');
 var Listing = require('mongoose').model('Listing');
 
 exports.list = function(req, res, next) {
-    if (!verification.getToken(req)) {
+    if (!verification.verifyToken(req)) {
         return res.status(401).send('unauthorized');
     } else {
         Listing.find({}, function(err, listings) {
@@ -14,14 +14,3 @@ exports.list = function(req, res, next) {
         }).populate('user');
     }
 };
-
-// exports.create = function(req, res, next) {
-//     var listing = new Listing(req.body);
-//     listing.save(function(err) {
-//         if (err) {
-//             return next(err);
-//         } else {
-//             res.json(listing);
-//         }
-//     });
-// };

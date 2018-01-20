@@ -32,12 +32,15 @@ exports.login = function(req, res) {
             res.status(401).send({success: false, msg: 'Authentication failed. User not found.'});
         } else {
             // check if password matches
-            user.comparePassword(req.body.password, function (err, isMatch) {
+            user.comparePassword(req.body.password, function(err, isMatch) {
                 if (isMatch && !err) {
                     // if user is found and password is right create a token
-                    var token = jwt.sign(user.toObject(), config.secret);
+                    var payload = user.toObject();
+                    delete payload.password;
+                    console.log(payload);
+                    var token = jwt.sign(payload, config.secret);
                     // return the information including token as JSON
-                    res.json({success: true, token: 'JWT ' + token});
+                    res.json({success: true, token: token});
                 } else {
                     res.status(401).send({success: false, msg: 'Authentication failed. Wrong password.'});
                 }
