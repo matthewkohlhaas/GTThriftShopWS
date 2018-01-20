@@ -1,6 +1,8 @@
 var config = require('./config');
 var express = require('express');
 var bodyParser = require('body-parser');
+var passport = require('passport');
+var morgan = require('morgan');
 
 module.exports = function() {
     var app = express();
@@ -31,8 +33,7 @@ module.exports = function() {
 
     app.use(bodyParser.json());
 
-    app.set('views', './app/views');
-    app.set('view engine', 'ejs');
+    app.use(passport.initialize());
 
     require('../app/routes/index.routes.js')(app);
     require('../app/routes/users.routes.js')(app);

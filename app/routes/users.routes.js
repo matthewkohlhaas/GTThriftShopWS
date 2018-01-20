@@ -1,9 +1,7 @@
 var users = require('../controllers/users.controller');
 
 module.exports = function(app) {
-    app.route('/users').post(users.create).get(users.list);
+    app.post('/create-account', users.createAccount);
 
-    app.route('/users/:userId').get(users.read);
-
-    app.param('userId', users.userByID);
+    app.post('/login', users.login);
 };
