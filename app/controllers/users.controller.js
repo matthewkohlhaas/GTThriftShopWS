@@ -3,23 +3,40 @@ var config = require('../../config/config');
 var verification = require('../utils/verification.util');
 var User = require('mongoose').model('User');
 
+const EMAIL_REGEX = /^.+@gatech.edu$/i;
+
 exports.createAccount = function(req, res) {
-    if (!req.body.email || !req.body.password || !req.body.password || !req.body.lastName) {
-        // TODO customized messages and verification tests (regexes)
-        res.json({successful: false, text: 'Please provide email and password.'});
+    var email = (req.body.email) ? req.body.email.trim() : '';
+    var password = (req.body.password) ? req.body.password.trim() : '';
+    var firstName = (req.body.firstName) ? req.body.firstName.trim() : '';
+    var lastName = (req.body.lastName) ? req.body.lastName.trim() : '';
+
+    if (!EMAIL_REGEX.test(email)) {
+        res.json({successful: false, text: 'Please provide a valid Georgia Tech email address'});
+
+    } else if (password.length < 6) {
+        res.json({successful: false, text: 'Please provide a password that is at least 6 characters long.'});
+
+    } else if (firstName === '') {
+        res.json({successful: false, text: 'Please provide a first name.'});
+
+    } else if (lastName === '') {
+        res.json({successful: false, text: 'Please provide a last name.'});
+
     } else {
-        var newUser = new User({
-            email: req.body.email,
-            password: req.body.password,
-            firstName: req.body.firstName,
-            lastName: req.body.lastName
+        var user = new User({
+            email: email,
+            password: password,
+            firstName: firstName,
+            lastName: lastName
         });
         // save the user
-        newUser.save(function(err) {
+        user.save(function(err) {
             if (err) {
-                return res.json({successful: false, text: 'Another account already uses that email address'});
+                return res.json({successful: false, text: 'The email address, ' +  user.email
+                + ' is already associated with another account.'});
             }
-            res.json({successful: true, text: 'Successfully created a new user account.'});
+            res.json({successful: true, text: 'A new account was created for ' + user.email + '!'});
         });
     }
 };
