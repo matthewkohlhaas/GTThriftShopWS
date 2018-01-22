@@ -4,6 +4,7 @@ var verification = require('../utils/verification.util');
 var User = require('mongoose').model('User');
 
 const EMAIL_REGEX = /^.+@gatech.edu$/i;
+const MIN_PASSWORD_LENGTH = 6;
 
 exports.createAccount = function(req, res) {
     var email = (req.body.email) ? req.body.email.trim() : '';
@@ -14,7 +15,7 @@ exports.createAccount = function(req, res) {
     if (!EMAIL_REGEX.test(email)) {
         res.json({successful: false, text: 'Please provide a valid Georgia Tech email address'});
 
-    } else if (password.length < 6) {
+    } else if (password.length < MIN_PASSWORD_LENGTH) {
         res.json({successful: false, text: 'Please provide a password that is at least 6 characters long.'});
 
     } else if (firstName === '') {
