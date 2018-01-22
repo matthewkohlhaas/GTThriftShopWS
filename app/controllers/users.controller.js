@@ -5,6 +5,7 @@ var User = require('mongoose').model('User');
 
 const EMAIL_REGEX = /^.+@gatech.edu$/i;
 const MIN_PASSWORD_LENGTH = 6;
+const TOKEN_EXPIRATION_TIME = '7 days';
 
 exports.createAccount = function(req, res) {
     var email = (req.body.email) ? req.body.email.trim() : '';
@@ -59,7 +60,7 @@ exports.login = function(req, res) {
                         // if user is found and password is right create a token
                         var payload = user.toObject();
                         delete payload.password;
-                        var token = jwt.sign(payload, config.secret);
+                        var token = jwt.sign(payload, config.secret, {expiresIn: TOKEN_EXPIRATION_TIME});
                         // return the information including token as JSON
                         res.json({successful: true, text: 'Successfully logged in as ' + user.firstName + ' '
                         + user.lastName + '.', token: token});
