@@ -32,7 +32,6 @@ exports.createAccount = function(req, res) {
             firstName: firstName,
             lastName: lastName
         });
-        // save the user
         user.save(function(err) {
             if (err) {
                 return res.json({successful: false, text: 'The email address, ' +  user.email
@@ -54,14 +53,11 @@ exports.login = function(req, res) {
             } else if (!user) {
                 res.status(401).send({successful: false, text: failureMsg});
             } else {
-                // check if password matches
                 user.comparePassword(req.body.password, function(err, isMatch) {
                     if (isMatch && !err) {
-                        // if user is found and password is right create a token
                         var payload = user.toObject();
                         delete payload.password;
                         var token = jwt.sign(payload, config.secret, {expiresIn: TOKEN_EXPIRATION_TIME});
-                        // return the information including token as JSON
                         res.json({successful: true, text: 'Successfully logged in as ' + user.firstName + ' '
                         + user.lastName + '.', token: token});
                     } else {
