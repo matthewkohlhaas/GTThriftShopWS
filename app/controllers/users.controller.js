@@ -4,7 +4,7 @@ var verification = require('../utils/verification.util');
 var User = require('mongoose').model('User');
 
 const EMAIL_REGEX = /^.+@gatech.edu$/i;
-const MIN_PASSWORD_LENGTH = 6;
+const MIN_PASSWORD_LENGTH = 8;
 const TOKEN_EXPIRATION_TIME = '7 days';
 
 exports.createAccount = function(req, res) {
