@@ -16,7 +16,7 @@ describe('Listings', function () {
 
     before(function (done) {
         var userInfo = {
-            email: 'blammers3@gatech.edu',
+            email: 'fakeEmail10@gatech.edu',
             password: 'TheLamminator!',
             firstName: 'Ben',
             lastName: 'Lammers'

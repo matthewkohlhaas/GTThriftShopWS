@@ -21,6 +21,10 @@ var UserSchema = new Schema({
         type: String,
         required: true
     },
+    isVerified: {
+        type: Boolean,
+        default: false
+    },
     totalRatings: {
         type: Number,
         default: 0
@@ -28,10 +32,6 @@ var UserSchema = new Schema({
     positiveRatings: {
         type: Number,
         default: 0
-    },
-    isVerified: {
-        type: Boolean,
-        default: false
     }
 });
 

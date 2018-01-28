@@ -1,11 +1,24 @@
 var jwt = require('jsonwebtoken');
+var crypto = require('crypto');
+var nodemailer = require('nodemailer');
 var config = require('../../config/config');
 var AuthUtils = require('../utils/authentication.utils');
 var User = require('mongoose').model('User');
+var VerificationToken = require('mongoose').model('VerificationToken');
 
 const EMAIL_REGEX = /^.+@gatech.edu$/i;
 const MIN_PASSWORD_LENGTH = 8;
 const TOKEN_EXPIRATION_TIME = '7 days';
+const TRANSPORTER = {
+    service: 'gmail',
+    auth: {
+        user: config.emailUsername,
+        pass: config.emailPassword
+    }
+};
+
+const EMAIL_FROM = config.emailUsername;
+const EMAIL_VERIFY_SUBJECT = 'Verify Your GT ThriftShop Account';
 
 exports.createAccount = function (req, res) {
     var email = (req.body.email) ? req.body.email.trim() : '';
@@ -34,12 +47,110 @@ exports.createAccount = function (req, res) {
         });
         user.save(function (err) {
             if (err) {
-                return res.json({successful: false, text: 'The email address, ' +  user.email
-                + ' is already associated with another account.'});
+                res.json({successful: false, text: 'The email address, ' +  user.email
+                    + ' is already associated with another account.'});
+            } else {
+                const failureMessage = 'Your account was created, however we could not send a verification email.';
+                var token = new VerificationToken({user: user._id, token: crypto.randomBytes(16).toString('hex')});
+
+                token.save(function (err) {
+                    if (err) {
+                        res.status(200).send({successful: true, text: failureMessage});
+                    } else {
+                        nodemailer.createTransport(TRANSPORTER).sendMail({
+                            from: EMAIL_FROM,
+                            to: user.email,
+                            subject: EMAIL_VERIFY_SUBJECT,
+                            text: 'Hello ' + user.firstName + ' ' + user.lastName + ',\n\nPlease verify your GT '
+                            + 'ThriftShop account by clicking the link:\nhttp:\/\/' + req.headers.host
+                            + '\/verify?token=' + token.token + '.\n'
+                        }, function (err) {
+                            if (err) {
+                                res.status(200).send({successful: true, text: failureMessage});
+                            } else {
+                                res.json({successful: true, text: 'Check your email for a link to verify your account.'
+                                });
+                            }
+                        });
+                    }
+                });
             }
-            res.json({successful: true, text: 'A new account was created for ' + user.email + '!'});
         });
     }
+};
+
+exports.resendVerification = function (req, res, next) {
+    var email = (req.body.email) ? req.body.email.trim() : '';
+
+    if (!EMAIL_REGEX.test(email)) {
+        res.json({successful: false, text: 'Please provide a valid Georgia Tech email address'});
+
+    } else {
+        User.findOne({email: req.body.email}, function (err, user) {
+            if (err) {
+
+            } else if (!user) {
+                res.status(400).send({successful: false, text: 'We were unable to find an account associated with that '
+                    + 'email address.' });
+            } else {
+                var token = new VerificationToken({user: user._id, token: crypto.randomBytes(16).toString('hex')});
+
+                token.save(function (err) {
+                    if (err) {
+                        res.status(500).send({successful: false, text: err.message});
+                    } else {
+                        nodemailer.createTransport(TRANSPORTER).sendMail({
+                            from: EMAIL_FROM,
+                            to: user.email,
+                            subject: EMAIL_VERIFY_SUBJECT,
+                            text: 'Hello ' + user.firstName + ' ' + user.lastName + ',\n\nPlease verify your GT '
+                            + 'ThriftShop account by clicking the link:\nhttp:\/\/' + req.headers.host
+                            + '\/verify?token=' + token.token + '.\n'
+                        }, function (err) {
+                            if (err) {
+                                res.status(500).send({successful: false, text: err.message});
+                            } else {
+                                res.json({successful: true, text: 'Check your email for a link to verify your account.'
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    }
+};
+
+exports.verifyUser = function (req, res, next) {
+    VerificationToken.findOne({token: req.query.token}, function (err, token) {
+        if (err) {
+            res.status(500).send({successful: false, text: err.message});
+        } else if (!token) {
+            res.status(400).send({successful: false, text: 'We were unable to verify your account. This verification '
+                + 'link my have expired.' })
+        } else {
+            User.findOne({_id: token.user}, function (err, user) {
+                if (err) {
+                    res.status(500).send({successful: false, text: err.message});
+                } else if (!user) {
+                    res.status(400).send({successful: false, text: 'We were unable to find an account associated with '
+                        + 'this verification link.' })
+                } else if (user.isVerified) {
+                    res.status(400).send({successful: false, text: 'Your account has already been verified.'})
+                } else {
+                    user.isVerified = true;
+                    user.save(function (err) {
+                        if (err) {
+                            res.status(500).send({successful: false, text: err.message});
+                        } else {
+                            res.status(200).send({successful: true, text: 'Your account has been successfully verified!'
+                            + ' You may now log in.'});
+                        }
+                    });
+                }
+            })
+        }
+    })
 };
 
 exports.login = function (req, res) {
@@ -49,19 +160,28 @@ exports.login = function (req, res) {
         .select('+password')
         .exec(function (err, user) {
             if (err) {
-                throw err;
+                res.status(500).send({successful: false, text: err.message});
+
             } else if (!user) {
                 res.status(401).send({successful: false, text: failureMsg});
+
             } else {
                 user.comparePassword(req.body.password, function (err, isMatch) {
-                    if (isMatch && !err) {
+                    if (err) {
+                        res.status(500).send({successful: false, text: err.message});
+
+                    } else if (!isMatch) {
+                        res.status(401).send({successful: false, text: failureMsg});
+
+                    } else if (!user.isVerified) {
+                        res.status(401).send({successful: false, text: 'Your account has not yet been verified.'});
+
+                    } else {
                         var payload = user.toObject();
                         delete payload.password;
                         var token = jwt.sign(payload, config.secret, {expiresIn: TOKEN_EXPIRATION_TIME});
                         res.json({successful: true, text: 'Successfully logged in as ' + user.firstName + ' '
-                        + user.lastName + '.', token: token});
-                    } else {
-                        res.status(401).send({successful: false, text: failureMsg});
+                            + user.lastName + '.', token: token});
                     }
                 });
             }

@@ -30,12 +30,12 @@ describe('Users', function () {
 
     describe('POST ' + ROUTE_CREATE_ACCOUNT, function () {
         var userInfo = [{
-            email: 'jokogie3@gatech.edu',
+            email: 'fakeEmail0@gatech.edu',
             password: 'burdell1885',
             firstName: 'Josh',
             lastName: 'Okogie'
         }, {
-            email: 'jokogie3@gatech.edu',
+            email: 'fakeEmail1@gatech.edu',
             password: 'imposter5',
             firstName: 'Faux',
             lastName: 'Player'
@@ -44,29 +44,29 @@ describe('Users', function () {
             firstName: 'Josh',
             lastName: 'Pastner'
         }, {
-            email: 'tjackson1@gatech.edu',
+            email: 'fakeEmail2@gatech.edu',
             firstName: 'Tadric',
             lastName: 'Jackson'
         }, {
-            email: 'blammers3@gatech.edu',
+            email: 'fakeEmail3@gatech.edu',
             password: 'thelamminator',
             lastname: 'Lammers'
         }, {
-            email: 'jalvarado3@gatech.edu',
+            email: 'fakeEmail4@gatech.edu',
             password: 'brooklyn10',
             firstName: 'Jose'
         }, {
-            email: 'jokogie@gmail.com',
+            email: 'fakeEmail5@gatech.edu',
             password: 'snellvillebball',
             firstName: 'Number',
             lastName: 'One'
         }, {
-            email: 'minpassword@gatech.edu',
+            email: 'fakeEmail6@gatech.edu',
             password: 'minimum1',
             firstName: 'Min',
             lastName: 'Password'
         }, {
-            email: 'shortpassword@gatech.edu',
+            email: 'fakeEmail7@gatech.edu',
             password: 'minimum',
             firstName: 'Short',
             lastName: 'Pass'
