@@ -69,5 +69,10 @@ exports.login = function (req, res) {
 };
 
 exports.verifyToken = function (req, res) {
-    res.send(verification.verifyToken(req));
+    var verified = verification.verifyToken(req);
+    var statusCode = 401;
+    if (verified) {
+        statusCode = 200;
+    }
+    res.status(statusCode).send(verified);
 };
