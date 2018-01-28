@@ -7,7 +7,7 @@ const EMAIL_REGEX = /^.+@gatech.edu$/i;
 const MIN_PASSWORD_LENGTH = 8;
 const TOKEN_EXPIRATION_TIME = '7 days';
 
-exports.createAccount = function(req, res) {
+exports.createAccount = function (req, res) {
     var email = (req.body.email) ? req.body.email.trim() : '';
     var password = (req.body.password) ? req.body.password.trim() : '';
     var firstName = (req.body.firstName) ? req.body.firstName.trim() : '';
@@ -32,7 +32,7 @@ exports.createAccount = function(req, res) {
             firstName: firstName,
             lastName: lastName
         });
-        user.save(function(err) {
+        user.save(function (err) {
             if (err) {
                 return res.json({successful: false, text: 'The email address, ' +  user.email
                 + ' is already associated with another account.'});
@@ -42,18 +42,18 @@ exports.createAccount = function(req, res) {
     }
 };
 
-exports.login = function(req, res) {
+exports.login = function (req, res) {
     var failureMsg = 'The email or password you provided was incorrect.';
 
     User.findOne({email: req.body.email})
         .select('+password')
-        .exec(function(err, user) {
+        .exec(function (err, user) {
             if (err) {
                 throw err;
             } else if (!user) {
                 res.status(401).send({successful: false, text: failureMsg});
             } else {
-                user.comparePassword(req.body.password, function(err, isMatch) {
+                user.comparePassword(req.body.password, function (err, isMatch) {
                     if (isMatch && !err) {
                         var payload = user.toObject();
                         delete payload.password;
@@ -68,6 +68,6 @@ exports.login = function(req, res) {
         });
 };
 
-exports.verifyToken = function(req, res) {
+exports.verifyToken = function (req, res) {
     res.send(verification.verifyToken(req));
 };
