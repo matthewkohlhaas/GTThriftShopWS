@@ -1,6 +1,6 @@
 var jwt = require('jsonwebtoken');
 var config = require('../../config/config');
-var verification = require('../utils/verification.util');
+var AuthUtils = require('../utils/authentication.utils');
 var User = require('mongoose').model('User');
 
 const EMAIL_REGEX = /^.+@gatech.edu$/i;
@@ -68,8 +68,8 @@ exports.login = function (req, res) {
         });
 };
 
-exports.verifyToken = function (req, res) {
-    var verified = verification.verifyToken(req);
+exports.authenticateToken = function (req, res) {
+    var verified = AuthUtils.authenticateToken(req);
     var statusCode = 401;
     if (verified) {
         statusCode = 200;

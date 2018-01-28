@@ -5,5 +5,5 @@ module.exports = function (app) {
 
     app.post('/login', users.login);
 
-    app.get('/verify', users.verifyToken);
+    app.get('/authenticate', users.authenticateToken);
 };

@@ -10,7 +10,7 @@ chai.use(chaiHttp);
 
 const ROUTE_CREATE_ACCOUNT = '/create-account';
 const ROUTE_LOGIN = '/login';
-const ROUTE_VERIFY = '/verify';
+const ROUTE_VERIFY = '/authenticate';
 
 const TOKEN_REGEX = /^[a-zA-Z0-9_\-]+\.[a-zA-Z0-9_\-]+\.[a-zA-Z0-9_\-]+$/;
 
