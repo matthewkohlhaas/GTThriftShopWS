@@ -3,34 +3,74 @@ process.env.NODE_ENV = 'test';
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const expect = chai.expect;
-const server = require('../server');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
+const server = require('../server');
 const config = require('../config/config');
 const User = require('../app/models/user.model');
+const VerificationToken = require('../app/models/verification-token.model');
 
 chai.use(chaiHttp);
 
 const ROUTE_CREATE_ACCOUNT = '/create-account';
+const ROUTE_RESEND_VERIFICATION = '/resend-verification';
+const ROUTE_VERIFY = '/verify';
 const ROUTE_LOGIN = '/login';
-const ROUTE_VERIFY = '/authenticate';
+const ROUTE_AUTHENTICATE = '/authenticate';
 
 const TOKEN_REGEX = /^[a-zA-Z0-9_\-]+\.[a-zA-Z0-9_\-]+\.[a-zA-Z0-9_\-]+$/;
 
 describe('Users', function () {
     var token;
+    var verificationTokens = [];
 
-    before(function (done) {
-        var user = new User({
+    var users = [
+        new User({
             email: 'fakeEmail@gatech.edu',
             password: 'TheLamminator!',
             firstName: 'Ben',
             lastName: 'Lammers',
             isVerified: true
-        });
+        }),
+        new User({
+            email: 'notVerified@gatech.edu',
+            password: 'heyIamNotVerified',
+            firstName: 'Not',
+            lastName: 'Verified'
+        }),
+        new User({
+            email: 'willVerify@gatech.edu',
+            password: 'iAmGoingToBeVerifiedByTheTests',
+            firstName: 'Will',
+            lastName: 'Verify'
+        })
+    ];
+
+    before(function (done) {
         User.remove({}, function (err) {
-            user.save(function (err) {
-                token = jwt.sign(user.toObject(), config.secret, {expiresIn: '5 minutes'});
-                done();
+            VerificationToken.remove({}, function () {
+                var errs = [];
+                users.forEach(function (user) {
+                    user.save(function (err) {
+                        errs.push(err);
+                        if (errs.length === users.length) {
+                            token = jwt.sign(users[0].toObject(), config.secret, {expiresIn: '5 minutes'});
+
+                            verificationTokens.push(new VerificationToken({user: users[0]._id,
+                                token: crypto.randomBytes(16).toString('hex')}));
+                            verificationTokens.push(new VerificationToken({user: users[1]._id,
+                                token: crypto.randomBytes(16).toString('hex')}));
+                            verificationTokens.push(new VerificationToken({user: users[2]._id,
+                                token: crypto.randomBytes(16).toString('hex')}));
+
+                            verificationTokens[0].save(function (err) {
+                                verificationTokens[2].save(function () {
+                                    done();
+                                });
+                            });
+                        }
+                    });
+                });
             });
         });
     });
@@ -47,7 +87,7 @@ describe('Users', function () {
             firstName: 'Josh',
             lastName: 'Okogie'
         }, {
-            email: 'fakeEmail1@gatech.edu',
+            email: users[0].email,
             password: 'imposter5',
             firstName: 'Faux',
             lastName: 'Player'
@@ -89,7 +129,7 @@ describe('Users', function () {
                 .post(ROUTE_CREATE_ACCOUNT)
                 .send(userInfo[0])
                 .end(function (err, res) {
-                    checkMessageResponse(res, true, 200);
+                    checkMessageResponse(res, true, 503);
                     done();
                 });
         });
@@ -98,7 +138,7 @@ describe('Users', function () {
                 .post(ROUTE_CREATE_ACCOUNT)
                 .send(userInfo[1])
                 .end(function (err, res) {
-                    checkMessageResponse(res, false, 200);
+                    checkMessageResponse(res, false, 400);
                     done();
                 });
         });
@@ -107,7 +147,7 @@ describe('Users', function () {
                 .post(ROUTE_CREATE_ACCOUNT)
                 .send(userInfo[2])
                 .end(function (err, res) {
-                    checkMessageResponse(res, false, 200);
+                    checkMessageResponse(res, false, 400);
                     done();
                 });
         });
@@ -116,7 +156,7 @@ describe('Users', function () {
                 .post(ROUTE_CREATE_ACCOUNT)
                 .send(userInfo[3])
                 .end(function (err, res) {
-                    checkMessageResponse(res, false, 200);
+                    checkMessageResponse(res, false, 400);
                     done();
                 });
         });
@@ -125,7 +165,7 @@ describe('Users', function () {
                 .post(ROUTE_CREATE_ACCOUNT)
                 .send(userInfo[4])
                 .end(function (err, res) {
-                    checkMessageResponse(res, false, 200);
+                    checkMessageResponse(res, false, 400);
                     done();
                 });
         });
@@ -134,7 +174,7 @@ describe('Users', function () {
                 .post(ROUTE_CREATE_ACCOUNT)
                 .send(userInfo[5])
                 .end(function (err, res) {
-                    checkMessageResponse(res, false, 200);
+                    checkMessageResponse(res, false, 400);
                     done();
                 });
         });
@@ -143,7 +183,7 @@ describe('Users', function () {
                 .post(ROUTE_CREATE_ACCOUNT)
                 .send(userInfo[6])
                 .end(function (err, res) {
-                    checkMessageResponse(res, false, 200);
+                    checkMessageResponse(res, false, 400);
                     done();
                 });
         });
@@ -152,7 +192,7 @@ describe('Users', function () {
                 .post(ROUTE_CREATE_ACCOUNT)
                 .send(userInfo[7])
                 .end(function (err, res) {
-                    checkMessageResponse(res, true, 200);
+                    checkMessageResponse(res, true, 503);
                     done();
                 });
         });
@@ -161,7 +201,68 @@ describe('Users', function () {
                 .post(ROUTE_CREATE_ACCOUNT)
                 .send(userInfo[8])
                 .end(function (err, res) {
-                    checkMessageResponse(res, false, 200);
+                    checkMessageResponse(res, false, 400);
+                    done();
+                });
+        });
+    });
+
+    describe('POST ' + ROUTE_RESEND_VERIFICATION, function () {
+        it('should fail to resend verification because the email service is down', function (done) {
+            chai.request(server)
+                .post(ROUTE_RESEND_VERIFICATION)
+                .send({email: users[1].email})
+                .end(function (err, res) {
+                    checkMessageResponse(res, false, 503);
+                    done();
+                });
+        });
+        it('should not resend verification for a bad email address', function (done) {
+            chai.request(server)
+                .post(ROUTE_RESEND_VERIFICATION)
+                .send({email: 'bademailaddress@gatech.edu'})
+                .end(function (err, res) {
+                    checkMessageResponse(res, false, 400);
+                    done();
+                });
+        });
+        it('should not resend verification for an account that is already verified', function (done) {
+            chai.request(server)
+                .post(ROUTE_RESEND_VERIFICATION)
+                .send({email: users[0].email})
+                .end(function (err, res) {
+                    checkMessageResponse(res, false, 400);
+                    done();
+                });
+        });
+    });
+
+    describe('GET ' + ROUTE_VERIFY, function () {
+        it('should verify an account', function (done) {
+            chai.request(server)
+                .get(ROUTE_VERIFY + '?token=' + verificationTokens[2].token)
+                .end(function (err, res) {
+                    expect(res).to.have.status(200);
+                    expect(res.text).to.be.a('string');
+                    expect(res.text).to.not.equal(null);
+                    expect(res.text).to.not.equal(undefined);
+                    expect(res.text).to.not.equal('');
+                    done();
+                });
+        });
+        it('should not verify an account when the verification token is not saved', function (done) {
+            chai.request(server)
+                .get(ROUTE_VERIFY + '?token=' + verificationTokens[1].token)
+                .end(function (err, res) {
+                    checkMessageResponse(res, false, 400);
+                    done();
+                });
+        });
+        it('should not verify an account when the user is already verified', function (done) {
+            chai.request(server)
+                .get(ROUTE_VERIFY + '?token=' + verificationTokens[0].token)
+                .end(function (err, res) {
+                    checkMessageResponse(res, false, 400);
                     done();
                 });
         });
@@ -169,13 +270,13 @@ describe('Users', function () {
 
     describe('POST ' + ROUTE_LOGIN, function () {
         var credentials = [{
-            email: 'fakeEmail@gatech.edu',
-            password: 'TheLamminator!',
+            email: users[0].email,
+            password: users[0].password
         }, {
             email: 'bademailaddress@gatech.edu',
-            password: 'TheLamminator!',
+            password: users[0].password
         }, {
-            email: 'fakeEmail@gatech.edu',
+            email: users[0].email,
             password: 'badpassword'
         }];
 
@@ -210,33 +311,33 @@ describe('Users', function () {
         });
     });
 
-    describe('GET ' + ROUTE_VERIFY, function () {
+    describe('GET ' + ROUTE_AUTHENTICATE, function () {
         it('should verify the token',  function (done) {
             chai.request(server)
-                .get(ROUTE_VERIFY)
+                .get(ROUTE_AUTHENTICATE)
                 .set('authorization', token)
                 .end(function (err, res) {
                     expect(res).to.have.status(200);
-                    expect(res.body).to.be.true;
+                    expect(res.body).to.equal(true);
                     done();
                 });
         });
         it('should not verify if there is no token',  function (done) {
             chai.request(server)
-                .get(ROUTE_VERIFY)
+                .get(ROUTE_AUTHENTICATE)
                 .end(function (err, res) {
                     expect(res).to.have.status(401);
-                    expect(res.body).to.be.false;
+                    expect(res.body).to.equal(false);
                     done();
                 });
         });
         it('should not verify a bad token',  function (done) {
             chai.request(server)
-                .get(ROUTE_VERIFY)
+                .get(ROUTE_AUTHENTICATE)
                 .set('authorization', 'bad.token._123-456')
                 .end(function (err, res) {
                     expect(res).to.have.status(401);
-                    expect(res.body).to.be.false;
+                    expect(res.body).to.equal(false);
                     done();
                 });
         });
@@ -249,7 +350,7 @@ function checkMessageResponse(res, expectedSuccess, expectedStatus) {
     expect(res.body).to.have.property('successful');
     expect(res.body).to.have.property('text');
     expect(res.body.successful).to.equal(expectedSuccess);
-    expect(res.body.text).to.not.be.null;
-    expect(res.body.text).to.not.be.undefined;
+    expect(res.body.text).to.not.equal(null);
+    expect(res.body.text).to.not.equal(undefined);
     expect(res.body.text).to.not.equal('');
 }

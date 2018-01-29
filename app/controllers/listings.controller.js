@@ -1,5 +1,5 @@
 var verification = require('../utils/authentication.utils');
-var Listing = require('mongoose').model('Listing');
+var Listing = require('../models/listing.model');
 
 exports.list = function (req, res, next) {
     if (!verification.authenticateToken(req)) {

@@ -3,8 +3,8 @@ var crypto = require('crypto');
 var nodemailer = require('nodemailer');
 var config = require('../../config/config');
 var AuthUtils = require('../utils/authentication.utils');
-var User = require('mongoose').model('User');
-var VerificationToken = require('mongoose').model('VerificationToken');
+var User = require('../models/user.model');
+var VerificationToken = require('../models/verification-token.model');
 
 const EMAIL_REGEX = /^.+@gatech.edu$/i;
 const MIN_PASSWORD_LENGTH = 8;
@@ -27,16 +27,16 @@ exports.createAccount = function (req, res) {
     var lastName = (req.body.lastName) ? req.body.lastName.trim() : '';
 
     if (!EMAIL_REGEX.test(email)) {
-        res.json({successful: false, text: 'Please provide a valid Georgia Tech email address'});
+        res.status(400).send({successful: false, text: 'Please provide a valid Georgia Tech email address'});
 
     } else if (password.length < MIN_PASSWORD_LENGTH) {
-        res.json({successful: false, text: 'Please provide a password that is at least 6 characters long.'});
+        res.status(400).send({successful: false, text: 'Please provide a password that is at least 6 characters long.'});
 
     } else if (firstName === '') {
-        res.json({successful: false, text: 'Please provide a first name.'});
+        res.status(400).send({successful: false, text: 'Please provide a first name.'});
 
     } else if (lastName === '') {
-        res.json({successful: false, text: 'Please provide a last name.'});
+        res.status(400).send({successful: false, text: 'Please provide a last name.'});
 
     } else {
         var user = new User({
@@ -47,7 +47,7 @@ exports.createAccount = function (req, res) {
         });
         user.save(function (err) {
             if (err) {
-                res.json({successful: false, text: 'The email address, ' +  user.email
+                res.status(400).send({successful: false, text: 'The email address, ' +  user.email
                     + ' is already associated with another account.'});
             } else {
                 const failureMessage = 'Your account was created, however we could not send a verification email.';
@@ -55,7 +55,7 @@ exports.createAccount = function (req, res) {
 
                 token.save(function (err) {
                     if (err) {
-                        res.status(200).send({successful: true, text: failureMessage});
+                        res.status(500).send({successful: false, text: failureMessage});
                     } else {
                         nodemailer.createTransport(TRANSPORTER).sendMail({
                             from: EMAIL_FROM,
@@ -66,7 +66,8 @@ exports.createAccount = function (req, res) {
                             + '\/verify?token=' + token.token + '.\n'
                         }, function (err) {
                             if (err) {
-                                res.status(200).send({successful: true, text: failureMessage});
+                                res.status(503).send({successful: true, text: 'Your new account was created, but our '
+                                    + 'email service failed to send a verification email.'});
                             } else {
                                 res.json({successful: true, text: 'Check your email for a link to verify your account.'
                                 });
@@ -92,6 +93,9 @@ exports.resendVerification = function (req, res, next) {
             } else if (!user) {
                 res.status(400).send({successful: false, text: 'We were unable to find an account associated with that '
                     + 'email address.' });
+            } else if (user.isVerified) {
+                res.status(400).send({successful: false, text: 'The account associated with that email address has '
+                    + 'already been verified.'});
             } else {
                 var token = new VerificationToken({user: user._id, token: crypto.randomBytes(16).toString('hex')});
 
@@ -108,7 +112,8 @@ exports.resendVerification = function (req, res, next) {
                             + '\/verify?token=' + token.token + '.\n'
                         }, function (err) {
                             if (err) {
-                                res.status(500).send({successful: false, text: err.message});
+                                res.status(503).send({successful: false, text: 'Our email service failed to send a '
+                                    + 'verification email.'});
                             } else {
                                 res.json({successful: true, text: 'Check your email for a link to verify your account.'
                                 });
@@ -143,8 +148,7 @@ exports.verifyUser = function (req, res, next) {
                         if (err) {
                             res.status(500).send({successful: false, text: err.message});
                         } else {
-                            res.status(200).send({successful: true, text: 'Your account has been successfully verified!'
-                            + ' You may now log in.'});
+                            res.send('Your account has been successfully verified! You may now log in.');
                         }
                     });
                 }
@@ -189,10 +193,10 @@ exports.login = function (req, res) {
 };
 
 exports.authenticateToken = function (req, res) {
-    var verified = AuthUtils.authenticateToken(req);
+    var authenticated = AuthUtils.authenticateToken(req);
     var statusCode = 401;
-    if (verified) {
+    if (authenticated) {
         statusCode = 200;
     }
-    res.status(statusCode).send(verified);
+    res.status(statusCode).send(authenticated);
 };
