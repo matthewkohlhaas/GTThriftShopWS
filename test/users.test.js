@@ -4,6 +4,8 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 const expect = chai.expect;
 const server = require('../server');
+const jwt = require('jsonwebtoken');
+const config = require('../config/config');
 const User = require('../app/models/user.model');
 
 chai.use(chaiHttp);
@@ -18,8 +20,18 @@ describe('Users', function () {
     var token;
 
     before(function (done) {
+        var user = new User({
+            email: 'fakeEmail@gatech.edu',
+            password: 'TheLamminator!',
+            firstName: 'Ben',
+            lastName: 'Lammers',
+            isVerified: true
+        });
         User.remove({}, function (err) {
-            done();
+            user.save(function (err) {
+                token = jwt.sign(user.toObject(), config.secret, {expiresIn: '5 minutes'});
+                done();
+            });
         });
     });
     after(function (done) {
@@ -30,7 +42,7 @@ describe('Users', function () {
 
     describe('POST ' + ROUTE_CREATE_ACCOUNT, function () {
         var userInfo = [{
-            email: 'fakeEmail0@gatech.edu',
+            email: 'fakeEmail1@gatech.edu',
             password: 'burdell1885',
             firstName: 'Josh',
             lastName: 'Okogie'
@@ -49,14 +61,14 @@ describe('Users', function () {
             lastName: 'Jackson'
         }, {
             email: 'fakeEmail3@gatech.edu',
-            password: 'thelamminator',
-            lastname: 'Lammers'
+            password: 'hesnumber34',
+            lastname: 'Gueye'
         }, {
             email: 'fakeEmail4@gatech.edu',
             password: 'brooklyn10',
             firstName: 'Jose'
         }, {
-            email: 'fakeEmail5@gatech.edu',
+            email: 'fakeEmail5@gmail.com',
             password: 'snellvillebball',
             firstName: 'Number',
             lastName: 'One'
@@ -157,13 +169,13 @@ describe('Users', function () {
 
     describe('POST ' + ROUTE_LOGIN, function () {
         var credentials = [{
-            email: 'jokogie3@gatech.edu',
-            password: 'burdell1885'
+            email: 'fakeEmail@gatech.edu',
+            password: 'TheLamminator!',
         }, {
-            email: 'jokogie5@gatech.edu',
-            password: 'burdell1885'
+            email: 'bademailaddress@gatech.edu',
+            password: 'TheLamminator!',
         }, {
-            email: 'jokogie3@gatech.edu',
+            email: 'fakeEmail@gatech.edu',
             password: 'badpassword'
         }];
 
@@ -175,7 +187,6 @@ describe('Users', function () {
                     checkMessageResponse(res, true, 200);
                     expect(res.body).to.have.property('token');
                     expect(res.body.token).to.match(TOKEN_REGEX);
-                    token = res.body.token;
                     done();
                 });
         });

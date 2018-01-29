@@ -4,6 +4,8 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 const expect = chai.expect;
 const server = require('../server');
+const jwt = require('jsonwebtoken');
+const config = require('../config/config');
 const User = require('../app/models/user.model');
 const Listing = require('../app/models/listing.model');
 
@@ -15,26 +17,19 @@ describe('Listings', function () {
     var token;
 
     before(function (done) {
-        var userInfo = {
-            email: 'fakeEmail10@gatech.edu',
+        var user = new User({
+            email: 'fakeEmail@gatech.edu',
             password: 'TheLamminator!',
             firstName: 'Ben',
-            lastName: 'Lammers'
-        };
+            lastName: 'Lammers',
+            isVerified: true
+        });
         User.remove({}, function (err) {
             Listing.remove({}, function (err) {
-                chai.request(server)
-                    .post('/create-account')
-                    .send(userInfo)
-                    .end(function (err, res) {
-                        chai.request(server)
-                            .post('/login')
-                            .send({email: userInfo.email, password: userInfo.password})
-                            .end(function (err, res) {
-                                token = res.body.token;
-                                done();
-                            });
-                    });
+                user.save(function (err) {
+                    token = jwt.sign(user.toObject(), config.secret, {expiresIn: '5 minutes'});
+                    done();
+                });
             });
         });
     });
