@@ -3,6 +3,7 @@ var cors = require('cors');
 var bodyParser = require('body-parser');
 var morgan = require('morgan');
 var passport = require('passport');
+var config = require('./config');
 
 module.exports = function() {
     var app = express();
@@ -15,7 +16,9 @@ module.exports = function() {
 
     app.use(bodyParser.json());
 
-    app.use(morgan('tiny'));
+    if (config.shouldLog) {
+        app.use(morgan('tiny'));
+    }
 
     app.use(passport.initialize());
 

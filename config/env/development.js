@@ -1,6 +1,6 @@
 module.exports = {
     port: 1337,
-    origin: 'http://localhost:4200',
+    shouldLog: true,
     db: 'mongodb://localhost/thriftdb',
     secret: 'georgepburdell'
 };
