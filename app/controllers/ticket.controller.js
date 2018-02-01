@@ -5,7 +5,7 @@ exports.createTicket = function(req, res) {
     var subject = (req.body.subject) ? req.body.subject.trim() : '';
     var message = (req.body.message) ? req.body.message.trim() : '';
 
-    if (subject.length < 1) {
+    if (subject === '') {
         res.json({successful: false, text: 'Please provide a meaningful subject for the ticket.'});
 
     } else if (message === '') {
