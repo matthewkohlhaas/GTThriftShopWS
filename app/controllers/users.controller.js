@@ -6,7 +6,8 @@ var AuthUtils = require('../utils/authentication.utils');
 var User = require('../models/user.model');
 var VerificationToken = require('../models/verification-token.model');
 
-const EMAIL_REGEX = /^.+@gatech.edu$/i;
+const EMAIL_REGEX = new RegExp('^(?:[a-z0-9!#$%&\'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&\'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08'
+    + '\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@gatech.edu$');
 const MIN_PASSWORD_LENGTH = 8;
 const TOKEN_EXPIRATION_TIME = '7 days';
 const TRANSPORTER = {
@@ -30,7 +31,8 @@ exports.createAccount = function (req, res) {
         res.status(400).send({successful: false, text: 'Please provide a valid Georgia Tech email address'});
 
     } else if (password.length < MIN_PASSWORD_LENGTH) {
-        res.status(400).send({successful: false, text: 'Please provide a password that is at least 6 characters long.'});
+        res.status(400).send({successful: false, text: 'Please provide a password that is at least 6 characters long.'
+        });
 
     } else if (firstName === '') {
         res.status(400).send({successful: false, text: 'Please provide a first name.'});
