@@ -71,7 +71,8 @@ exports.createAccount = function (req, res) {
                                 res.status(503).send({successful: true, text: 'Your new account was created, but our '
                                     + 'email service failed to send a verification email.'});
                             } else {
-                                res.json({successful: true, text: 'Check your email for a link to verify your account.'
+                                res.status(200).send({successful: true, text: 'Check your email for a link to verify'
+                                    + 'your account.'
                                 });
                             }
                         });
@@ -86,7 +87,7 @@ exports.resendVerification = function (req, res, next) {
     var email = (req.body.email) ? req.body.email.trim() : '';
 
     if (!EMAIL_REGEX.test(email)) {
-        res.json({successful: false, text: 'Please provide a valid Georgia Tech email address'});
+        res.status(400).send({successful: false, text: 'Please provide a valid Georgia Tech email address'});
 
     } else {
         User.findOne({email: req.body.email}, function (err, user) {
@@ -117,7 +118,8 @@ exports.resendVerification = function (req, res, next) {
                                 res.status(503).send({successful: false, text: 'Our email service failed to send a '
                                     + 'verification email.'});
                             } else {
-                                res.json({successful: true, text: 'Check your email for a link to verify your account.'
+                                res.status(200).send({successful: true, text: 'Check your email for a link to verify '
+                                    + 'your account.'
                                 });
                             }
                         });
@@ -186,8 +188,8 @@ exports.login = function (req, res) {
                         var payload = user.toObject();
                         delete payload.password;
                         var token = jwt.sign(payload, config.secret, {expiresIn: TOKEN_EXPIRATION_TIME});
-                        res.json({successful: true, text: 'Successfully logged in as ' + user.firstName + ' '
-                            + user.lastName + '.', token: token});
+                        res.status(200).send({successful: true, text: 'Successfully logged in as ' + user.firstName
+                            + ' ' + user.lastName + '.', token: token});
                     }
                 });
             }
