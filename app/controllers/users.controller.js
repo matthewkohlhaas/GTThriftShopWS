@@ -53,6 +53,7 @@ exports.createAccount = function (req, res) {
                     + ' is already associated with another account.'});
             } else {
                 const failureMessage = 'Your account was created, however we could not send a verification email.';
+
                 var token = new VerificationToken({user: user._id, token: crypto.randomBytes(16).toString('hex')});
 
                 token.save(function (err) {
@@ -64,14 +65,13 @@ exports.createAccount = function (req, res) {
                             to: user.email,
                             subject: EMAIL_VERIFY_SUBJECT,
                             text: 'Hello ' + user.firstName + ' ' + user.lastName + ',\n\nPlease verify your GT '
-                            + 'ThriftShop account by clicking the link:\nhttp:\/\/' + req.headers.host
-                            + '\/verify?token=' + token.token + '.\n'
+                            + 'ThriftShop account by clicking the link:\nhttp:\/\/' + config.uiUrl + '\/verify/'
+                            + token.token
                         }, function (err) {
                             if (err) {
-                                res.status(503).send({successful: true, text: 'Your new account was created, but our '
-                                    + 'email service failed to send a verification email.'});
+                                res.status(503).send({successful: false, text: failureMessage});
                             } else {
-                                res.status(200).send({successful: true, text: 'Check your email for a link to verify'
+                                res.status(200).send({successful: true, text: 'Check your email for a link to verify '
                                     + 'your account.'
                                 });
                             }
@@ -111,8 +111,8 @@ exports.resendVerification = function (req, res, next) {
                             to: user.email,
                             subject: EMAIL_VERIFY_SUBJECT,
                             text: 'Hello ' + user.firstName + ' ' + user.lastName + ',\n\nPlease verify your GT '
-                            + 'ThriftShop account by clicking the link:\nhttp:\/\/' + req.headers.host
-                            + '\/verify?token=' + token.token + '.\n'
+                            + 'ThriftShop account by clicking the link:\nhttp:\/\/' + config.uiUrl + '\/verify/'
+                            + token.token
                         }, function (err) {
                             if (err) {
                                 res.status(503).send({successful: false, text: 'Our email service failed to send a '
@@ -131,19 +131,19 @@ exports.resendVerification = function (req, res, next) {
 };
 
 exports.verifyUser = function (req, res, next) {
-    VerificationToken.findOne({token: req.query.token}, function (err, token) {
+    VerificationToken.findOne({token: req.params.token}, function (err, token) {
         if (err) {
             res.status(500).send({successful: false, text: err.message});
         } else if (!token) {
             res.status(400).send({successful: false, text: 'We were unable to verify your account. This verification '
-                + 'link my have expired.' })
+                + 'link my have expired.'})
         } else {
             User.findOne({_id: token.user}, function (err, user) {
                 if (err) {
                     res.status(500).send({successful: false, text: err.message});
                 } else if (!user) {
                     res.status(400).send({successful: false, text: 'We were unable to find an account associated with '
-                        + 'this verification link.' })
+                        + 'this verification link.'})
                 } else if (user.isVerified) {
                     res.status(400).send({successful: false, text: 'Your account has already been verified.'})
                 } else {
@@ -152,7 +152,8 @@ exports.verifyUser = function (req, res, next) {
                         if (err) {
                             res.status(500).send({successful: false, text: err.message});
                         } else {
-                            res.send('Your account has been successfully verified! You may now log in.');
+                            res.status(200).send({successful: true, text: 'Your account has been successfully verified!'
+                                + ' You may now log in.'});
                         }
                     });
                 }

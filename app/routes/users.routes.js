@@ -5,7 +5,7 @@ module.exports = function (app) {
 
     app.post('/resend-verification', users.resendVerification);
 
-    app.get('/verify', users.verifyUser);
+    app.get('/verify/:token', users.verifyUser);
 
     app.post('/login', users.login);
 
