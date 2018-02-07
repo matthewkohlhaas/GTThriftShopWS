@@ -6,8 +6,8 @@ var AuthUtils = require('../utils/authentication.utils');
 var User = require('../models/user.model');
 var VerificationToken = require('../models/verification-token.model');
 
-const EMAIL_REGEX = new RegExp('^(?:[a-z0-9!#$%&\'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&\'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08'
-    + '\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@gatech.edu$');
+const EMAIL_REGEX = new RegExp('^(?:[a-zA-Z0-9!#$%&\'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&\'*+/=?^_`{|}~-]+)*|"(?:['
+    + '\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@gatech.edu$');
 const MIN_PASSWORD_LENGTH = 8;
 const TOKEN_EXPIRATION_TIME = '7 days';
 const TRANSPORTER = {
@@ -58,7 +58,7 @@ exports.createAccount = function (req, res) {
 
                 token.save(function (err) {
                     if (err) {
-                        res.status(500).send({successful: false, text: failureMessage});
+                        res.status(500).send({successful: true, text: failureMessage});
                     } else {
                         nodemailer.createTransport(TRANSPORTER).sendMail({
                             from: EMAIL_FROM,
@@ -69,7 +69,7 @@ exports.createAccount = function (req, res) {
                             + token.token
                         }, function (err) {
                             if (err) {
-                                res.status(503).send({successful: false, text: failureMessage});
+                                res.status(503).send({successful: true, text: failureMessage});
                             } else {
                                 res.status(200).send({successful: true, text: 'Check your email for a link to verify '
                                     + 'your account.'

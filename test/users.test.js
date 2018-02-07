@@ -240,7 +240,7 @@ describe('Users', function () {
     describe('GET ' + ROUTE_VERIFY, function () {
         it('should verify an account', function (done) {
             chai.request(server)
-                .get(ROUTE_VERIFY + '?token=' + verificationTokens[2].token)
+                .get(ROUTE_VERIFY + '/' + verificationTokens[2].token)
                 .end(function (err, res) {
                     expect(res).to.have.status(200);
                     expect(res.text).to.be.a('string');
@@ -252,7 +252,7 @@ describe('Users', function () {
         });
         it('should not verify an account when the verification token is not saved', function (done) {
             chai.request(server)
-                .get(ROUTE_VERIFY + '?token=' + verificationTokens[1].token)
+                .get(ROUTE_VERIFY + '/' + verificationTokens[1].token)
                 .end(function (err, res) {
                     checkMessageResponse(res, false, 400);
                     done();
@@ -260,7 +260,7 @@ describe('Users', function () {
         });
         it('should not verify an account when the user is already verified', function (done) {
             chai.request(server)
-                .get(ROUTE_VERIFY + '?token=' + verificationTokens[0].token)
+                .get(ROUTE_VERIFY + '/' + verificationTokens[0].token)
                 .end(function (err, res) {
                     checkMessageResponse(res, false, 400);
                     done();
