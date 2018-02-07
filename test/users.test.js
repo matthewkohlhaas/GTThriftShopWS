@@ -49,9 +49,11 @@ describe('Users', function () {
     before(function (done) {
         User.remove({}, function (err) {
             VerificationToken.remove({}, function () {
-                var errs = [];
+                const errs = [];
                 users.forEach(function (user) {
-                    user.save(function (err) {
+                    const processedUser = new User(user);
+                    processedUser.email = processedUser.email.toLowerCase();
+                    processedUser.save(function (err) {
                         errs.push(err);
                         if (errs.length === users.length) {
                             token = jwt.sign(users[0].toObject(), config.secret, {expiresIn: '5 minutes'});

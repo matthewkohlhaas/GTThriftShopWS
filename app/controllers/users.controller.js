@@ -22,7 +22,7 @@ const EMAIL_FROM = config.emailUsername;
 const EMAIL_VERIFY_SUBJECT = 'Verify Your GT ThriftShop Account';
 
 exports.createAccount = function (req, res) {
-    var email = (req.body.email) ? req.body.email.trim() : '';
+    var email = (req.body.email) ? req.body.email.trim().toLowerCase() : '';
     var password = (req.body.password) ? req.body.password.trim() : '';
     var firstName = (req.body.firstName) ? req.body.firstName.trim() : '';
     var lastName = (req.body.lastName) ? req.body.lastName.trim() : '';
@@ -84,13 +84,13 @@ exports.createAccount = function (req, res) {
 };
 
 exports.resendVerification = function (req, res, next) {
-    var email = (req.body.email) ? req.body.email.trim() : '';
+    var email = (req.body.email) ? req.body.email.trim().toLowerCase() : '';
 
     if (!EMAIL_REGEX.test(email)) {
         res.status(400).send({successful: false, text: 'Please provide a valid Georgia Tech email address'});
 
     } else {
-        User.findOne({email: req.body.email}, function (err, user) {
+        User.findOne({email: email}, function (err, user) {
             if (err) {
 
             } else if (!user) {
@@ -165,7 +165,7 @@ exports.verifyUser = function (req, res, next) {
 exports.login = function (req, res) {
     var failureMsg = 'The email or password you provided was incorrect.';
 
-    User.findOne({email: req.body.email})
+    User.findOne({email: req.body.email.toLowerCase()})
         .select('+password')
         .exec(function (err, user) {
             if (err) {
