@@ -4,7 +4,6 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 const expect = chai.expect;
 const jwt = require('jsonwebtoken');
-const crypto = require('crypto');
 const server = require('../server');
 const config = require('../config/config');
 const User = require('../app/models/user.model');
@@ -75,26 +74,18 @@ describe('Users', function () {
                         if (errs.length === users.length) {
                             token = jwt.sign(users[0].toObject(), config.secret, {expiresIn: '5 minutes'});
 
-                            verificationTokens.push(new VerificationToken({user: users[0]._id,
-                                token: crypto.randomBytes(16).toString('hex')}));
-                            verificationTokens.push(new VerificationToken({user: users[1]._id,
-                                token: crypto.randomBytes(16).toString('hex')}));
-                            verificationTokens.push(new VerificationToken({user: users[2]._id,
-                                token: crypto.randomBytes(16).toString('hex')}));
-                            verificationTokens.push(new VerificationToken({user: '5',
-                                token: crypto.randomBytes(16).toString('hex')}));
+                            verificationTokens.push(new VerificationToken({user: users[0]._id}));
+                            verificationTokens.push(new VerificationToken({user: users[1]._id}));
+                            verificationTokens.push(new VerificationToken({user: users[2]._id}));
+                            verificationTokens.push(new VerificationToken({user: '5'}));
 
                             verificationTokens[0].save(function (err) {
                                 verificationTokens[2].save(function (err) {
                                     verificationTokens[3].save(function (err) {
-                                        passwordResetTokens.push(new PasswordResetToken({user: users[3]._id,
-                                            token: crypto.randomBytes(16).toString('hex')}));
-                                        passwordResetTokens.push(new PasswordResetToken({user: users[4]._id,
-                                            token: crypto.randomBytes(16).toString('hex')}));
-                                        passwordResetTokens.push(new PasswordResetToken({user: users[0]._id,
-                                            token: crypto.randomBytes(16).toString('hex')}));
-                                        passwordResetTokens.push(new PasswordResetToken({user: '23',
-                                            token: crypto.randomBytes(16).toString('hex')}));
+                                        passwordResetTokens.push(new PasswordResetToken({user: users[3]._id}));
+                                        passwordResetTokens.push(new PasswordResetToken({user: users[4]._id}));
+                                        passwordResetTokens.push(new PasswordResetToken({user: users[0]._id}));
+                                        passwordResetTokens.push(new PasswordResetToken({user: '23'}));
 
                                         passwordResetTokens[0].save(function (err) {
                                             passwordResetTokens[1].save(function (err) {

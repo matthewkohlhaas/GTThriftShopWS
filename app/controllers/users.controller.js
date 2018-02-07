@@ -1,5 +1,4 @@
 var jwt = require('jsonwebtoken');
-var crypto = require('crypto');
 var nodemailer = require('nodemailer');
 var config = require('../../config/config');
 var AuthUtils = require('../utils/authentication.utils');
@@ -56,7 +55,7 @@ exports.createAccount = function (req, res) {
             } else {
                 const failureMessage = 'Your account was created, however we could not send a verification email.';
 
-                var token = new VerificationToken({user: user._id, token: crypto.randomBytes(16).toString('hex')});
+                var token = new VerificationToken({user: user._id});
 
                 token.save(function (err) {
                     if (err) {
@@ -102,7 +101,7 @@ exports.resendVerificationEmail = function (req, res, next) {
                 res.status(400).send({successful: false, text: 'The account associated with that email address has '
                     + 'already been verified.'});
             } else {
-                var token = new VerificationToken({user: user._id, token: crypto.randomBytes(16).toString('hex')});
+                var token = new VerificationToken({user: user._id});
 
                 token.save(function (err) {
                     if (err) {
@@ -178,7 +177,7 @@ exports.sendPasswordResetEmail = function (req, res, next) {
                 res.status(400).send({successful: false, text: 'We were unable to find an account associated with that '
                     + 'email address.' });
             } else {
-                var token = new PasswordResetToken({user: user._id, token: crypto.randomBytes(16).toString('hex')});
+                var token = new PasswordResetToken({user: user._id});
 
                 token.save(function (err) {
                     if (err) {
