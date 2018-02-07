@@ -5,6 +5,7 @@ var config = require('../../config/config');
 var AuthUtils = require('../utils/authentication.utils');
 var User = require('../models/user.model');
 var VerificationToken = require('../models/verification-token.model');
+var PasswordResetToken = require('../models/password-reset-token.model');
 
 const EMAIL_REGEX = new RegExp('^(?:[a-zA-Z0-9!#$%&\'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&\'*+/=?^_`{|}~-]+)*|"(?:['
     + '\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@gatech.edu$');
@@ -20,6 +21,7 @@ const TRANSPORTER = {
 
 const EMAIL_FROM = config.emailUsername;
 const EMAIL_VERIFY_SUBJECT = 'Verify Your GT ThriftShop Account';
+const EMAIL_RESET_PASSWORD_SUBJECT = 'Reset Your GT ThriftShop Password';
 
 exports.createAccount = function (req, res) {
     var email = (req.body.email) ? req.body.email.trim().toLowerCase() : '';
@@ -83,7 +85,7 @@ exports.createAccount = function (req, res) {
     }
 };
 
-exports.resendVerification = function (req, res, next) {
+exports.resendVerificationEmail = function (req, res, next) {
     var email = (req.body.email) ? req.body.email.trim().toLowerCase() : '';
 
     if (!EMAIL_REGEX.test(email)) {
@@ -160,6 +162,87 @@ exports.verifyUser = function (req, res, next) {
             })
         }
     })
+};
+
+exports.sendPasswordResetEmail = function (req, res, next) {
+    var email = (req.body.email) ? req.body.email.trim().toLowerCase() : '';
+
+    if (!EMAIL_REGEX.test(email)) {
+        res.status(400).send({successful: false, text: 'Please provide a valid Georgia Tech email address'});
+
+    } else {
+        User.findOne({email: email}, function (err, user) {
+            if (err) {
+
+            } else if (!user) {
+                res.status(400).send({successful: false, text: 'We were unable to find an account associated with that '
+                    + 'email address.' });
+            } else {
+                var token = new PasswordResetToken({user: user._id, token: crypto.randomBytes(16).toString('hex')});
+
+                token.save(function (err) {
+                    if (err) {
+                        res.status(500).send({successful: false, text: err.message});
+                    } else {
+                        nodemailer.createTransport(TRANSPORTER).sendMail({
+                            from: EMAIL_FROM,
+                            to: user.email,
+                            subject: EMAIL_RESET_PASSWORD_SUBJECT,
+                            text: 'Hello ' + user.firstName + ' ' + user.lastName + ',\n\nYou can reset your GT '
+                            + 'ThriftShop password at the following link:\nhttp:\/\/' + config.uiUrl
+                            + '\/reset-password/' + token.token
+                        }, function (err) {
+                            if (err) {
+                                res.status(503).send({successful: false, text: 'Our email service failed to send a '
+                                    + 'password reset email.'});
+                            } else {
+                                res.status(200).send({successful: true, text: 'Check your email for a link to reset '
+                                    + 'your password.'
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    }
+};
+
+exports.resetPassword = function (req, res, next) {
+    var password = (req.body.password) ? req.body.password.trim() : '';
+
+    if (password.length < MIN_PASSWORD_LENGTH) {
+        res.status(400).send({successful: false, text: 'Please provide a password that is at least 6 characters long.'
+        });
+    } else {
+        VerificationToken.findOne({token: req.body.token}, function (err, token) {
+            if (err) {
+                res.status(500).send({successful: false, text: err.message});
+            } else if (!token) {
+                res.status(400).send({successful: false, text: 'We are unable to reset your password. This password '
+                    + 'reset link my have expired.'})
+            } else {
+                User.findOne({_id: token.user}, function (err, user) {
+                    if (err) {
+                        res.status(500).send({successful: false, text: err.message});
+                    } else if (!user) {
+                        res.status(400).send({successful: false, text: 'We were unable to find an account associated '
+                            + 'with this password reset link.'})
+                    } else {
+                        user.password = password;
+                        user.save(function (err) {
+                            if (err) {
+                                res.status(500).send({successful: false, text: err.message});
+                            } else {
+                                res.status(200).send({successful: true, text: 'Your password has been successfully '
+                                    + 'changed! You may now log in with your new password.'});
+                            }
+                        });
+                    }
+                })
+            }
+        })
+    }
 };
 
 exports.login = function (req, res) {
