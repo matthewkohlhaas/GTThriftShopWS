@@ -234,8 +234,14 @@ exports.resetPassword = function (req, res, next) {
                             if (err) {
                                 res.status(500).send({successful: false, text: err.message});
                             } else {
-                                res.status(200).send({successful: true, text: 'Your password has been successfully '
-                                    + 'changed! You may now log in with your new password.'});
+                                PasswordResetToken.remove({token: token.token}, function (err) {
+                                    if (err) {
+                                        res.status(500).send({successful: false, text: err.message});
+                                    } else {
+                                        res.status(200).send({successful: true, text: 'Your password has been '
+                                            + 'successfully changed! You may now log in with your new password.'});
+                                    }
+                                });
                             }
                         });
                     }
