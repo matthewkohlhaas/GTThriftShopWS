@@ -209,13 +209,13 @@ exports.sendPasswordResetEmail = function (req, res, next) {
 };
 
 exports.resetPassword = function (req, res, next) {
-    var password = (req.body.password) ? req.body.password.trim() : '';
+    var password = (req.body.password) ? req.body.password.trim().toLowerCase() : '';
 
     if (password.length < MIN_PASSWORD_LENGTH) {
         res.status(400).send({successful: false, text: 'Please provide a password that is at least 6 characters long.'
         });
     } else {
-        VerificationToken.findOne({token: req.body.token}, function (err, token) {
+        PasswordResetToken.findOne({token: req.body.token}, function (err, token) {
             if (err) {
                 res.status(500).send({successful: false, text: err.message});
             } else if (!token) {
@@ -230,6 +230,7 @@ exports.resetPassword = function (req, res, next) {
                             + 'with this password reset link.'})
                     } else {
                         user.password = password;
+                        user.isVerified = true; // user is verified since they used their email to reset their password
                         user.save(function (err) {
                             if (err) {
                                 res.status(500).send({successful: false, text: err.message});
