@@ -417,10 +417,10 @@ describe('Users', function () {
                     checkMessageResponse(res, true, 200);
                     User.findOne({_id: passwordToken.user}, function (err, user) {
                         expect(user.isVerified).to.equal(true);
-                        user.comparePassword(testPassword, function (err, isMatch) {
-                           expect(isMatch).to.equal(true);
+                        PasswordResetToken.findOne({token: passwordToken.token}, function (err, token) {
+                            expect(token).to.equal(null);
+                            done();
                         });
-                        done();
                     });
                 });
         });
@@ -486,7 +486,10 @@ describe('Users', function () {
                         User.findOne({_id: passwordToken.user}, function (err, updatedUser) {
                             expect(user.isVerified).to.equal(false);
                             expect(updatedUser.isVerified).to.equal(true);
-                            done();
+                            PasswordResetToken.findOne({token: passwordToken.token}, function (err, token) {
+                                expect(token).to.equal(null);
+                                done();
+                            });
                         });
                     });
             });
