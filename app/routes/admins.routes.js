@@ -5,10 +5,14 @@ var auth = require('../utils/auth-middleware.utils');
 module.exports = function (app) {
     app.post('/admin/register',
         auth.authenticateTokenMiddleware,
-        admins.isAdmin,
+        admins.isAdminMiddleware,
         users.findUserByEmail,
         admins.doesAdminAlreadyExist,
         admins.registerAdmin);
+
+    app.get('/isAdmin',
+        auth.authenticateTokenMiddleware,
+        admins.isAdmin);
 
 /*
  *  The purpose of this route is to create the very first admin

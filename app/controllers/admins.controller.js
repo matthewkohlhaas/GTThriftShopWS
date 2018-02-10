@@ -2,13 +2,24 @@ var Admin = require('../models/admin.model');
 var User = require('../models/user.model');
 var AuthUtils = require('../utils/authentication.utils');
 
-exports.isAdmin = function (req, res, next) {
+exports.isAdminMiddleware = function (req, res, next) {
     var user = AuthUtils.getUserFromToken(req);
     Admin.findOne({ 'user': user }, function (err, admin) {
         if (err || !admin) {
             return res.status(403).send('forbidden');
         }
         next();
+    });
+};
+
+exports.isAdmin = function (req, res, next) {
+    var user = AuthUtils.getUserFromToken(req);
+    Admin.findOne({ 'user': user }, function (err, admin) {
+        if (err || !admin) {
+            return res.status(200).send(false);
+        } else {
+            return res.status(200).send(true);
+        }
     });
 };
 

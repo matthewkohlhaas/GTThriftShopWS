@@ -15,14 +15,14 @@ module.exports = function (app) {
 
     app.post('/user/ban',
         auth.authenticateTokenMiddleware,
-        admins.isAdmin,
+        admins.isAdminMiddleware,
         users.findUserByEmail,
         users.banUser,
         users.emailBannedUser);
 
     app.post('/user/unban',
         auth.authenticateTokenMiddleware,
-        admins.isAdmin,
+        admins.isAdminMiddleware,
         users.findUserByEmail,
         users.unbanUser,
         users.emailUnbannedUser);
