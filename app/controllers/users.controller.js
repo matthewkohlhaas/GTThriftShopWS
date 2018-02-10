@@ -271,3 +271,16 @@ exports.emailUnbannedUser = function (req, res) {
     var success_message = 'User successfully unbanned.';
     emailUserAboutBan(email_address, subject, text, error_message, success_message, res);
 };
+
+exports.isUserBanned = function (req, res, next) {
+    var user = AuthUtils.getUserFromToken(req);
+    User.findById(user._id, function (err, user) {
+        if (err || !user) {
+            return res.status(500).send('Failed to find current user.');
+        }
+        if (user.isBanned == true) {
+            return res.status(403).send('forbidden');
+        }
+        next();
+    });
+};
