@@ -12,16 +12,6 @@ exports.isAdmin = function (req, res, next) {
     });
 };
 
-exports.findUserByEmail = function (req, res, next) {
-    User.findOne({ 'email': req.body.email }, function (err, user) {
-        if (err || !user) {
-            return res.status(400).send('Could not find user with given email.');
-        }
-        req.new_admin_user = user;
-        next();
-    });
-};
-
 exports.doesAdminAlreadyExist = function (req, res, next) {
     Admin.findOne({ 'user': req.new_admin_user }, function (err, found) {
         if (found) {
@@ -36,7 +26,7 @@ exports.doesAdminAlreadyExist = function (req, res, next) {
 
 exports.registerAdmin = function (req, res, next) {
     var admin = new Admin({
-        user: req.new_admin_user
+        user: req.found_user
     });
     admin.save(function (err) {
         if (err) {

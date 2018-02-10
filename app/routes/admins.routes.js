@@ -1,11 +1,12 @@
 var admins = require('../controllers/admins.controller');
+var users = require('../controllers/users.controller');
 var auth = require('../utils/auth-middleware.utils');
 
 module.exports = function (app) {
     app.post('/admin/register',
         auth.authenticateTokenMiddleware,
         admins.isAdmin,
-        admins.findUserByEmail,
+        users.findUserByEmail,
         admins.doesAdminAlreadyExist,
         admins.registerAdmin);
 
@@ -16,7 +17,7 @@ module.exports = function (app) {
  */
     app.post('/admin/temporary-register',
         auth.authenticateTokenMiddleware,
-        admins.findUserByEmail,
+        users.findUserByEmail,
         admins.doesAdminAlreadyExist,
         admins.registerAdmin);
 };

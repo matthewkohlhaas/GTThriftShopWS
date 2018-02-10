@@ -205,3 +205,67 @@ exports.authenticateToken = function (req, res) {
     }
     res.status(statusCode).send(authenticated);
 };
+
+exports.findUserByEmail = function (req, res, next) {
+    User.findOne({ 'email': req.body.email }, function (err, user) {
+        if (err || !user) {
+            return res.status(400).send('Could not find user with given email.');
+        }
+        req.found_user = user;
+        next();
+    });
+};
+
+exports.updateUserBan = function (isBanned, error_message) {
+    req.found_user.isBanned = isBanned;
+    req.found_user.save(function (err) {
+        if (err) {
+            return res.status(500).send(error_message);
+        } else {
+            next();
+        }
+    });
+};
+
+exports.banUser = function (req, res, next) {
+    this.updateUserBan(true, 'Failed to ban user.');
+};
+
+exports.unbanUser = function (req, res, next) {
+    this.updateUserBan(false, 'Failed to unban user.');
+};
+
+exports.emailUserAboutBan = function (subject, text, error_message, success_message) {
+    nodemailer.createTransport(TRANSPORTER).sendMail({
+        from: EMAIL_FROM,
+        to: req.found_user.email,
+        subject: subject,
+        text: text
+    }, function (err) {
+        if (err) {
+            return res.status(503).send(error_message);
+        } else {
+            return res.status(200).send(success_message);
+        }
+    });
+};
+
+exports.emailBannedUser = function (req, res) {
+    var subject = 'GT ThriftShop Account Banned';
+    var text = user.firstName + ' ' + user.lastName + ',\n\nYour GT ThriftShop account has been banned by the GT '
+        + 'Thriftshop administrators. You are no longer able to create listings or contact other users about their'
+        + 'listings.';
+    var error_message = 'Failed to send email to banned user.';
+    var success_message = 'User successfully banned.';
+    this.emailUserAboutBan(subject, text, error_message, success_message);
+};
+
+exports.emailUnbannedUser = function (req, res) {
+    var subject = 'GT ThriftShop Account Unbanned';
+    var text = user.firstName + ' ' + user.lastName + ',\n\nYour GT ThriftShop account has been unbanned by the GT '
+        + 'Thriftshop administrators. You are now able to create listings and contact other users about their'
+        + 'listings.';
+    var error_message = 'Failed to send email to unbanned user.';
+    var success_message = 'User successfully unbanned.';
+    this.emailUserAboutBan(subject, text, error_message, success_message);
+};
