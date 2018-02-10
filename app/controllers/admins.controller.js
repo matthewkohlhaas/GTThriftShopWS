@@ -6,7 +6,7 @@ exports.isAdmin = function (req, res, next) {
     var user = AuthUtils.getUserFromToken(req);
     Admin.findOne({ 'user': user }, function (err, admin) {
         if (err || !admin) {
-            return res.status(401).send('unauthorized');
+            return res.status(403).send('forbidden');
         }
         next();
     });
