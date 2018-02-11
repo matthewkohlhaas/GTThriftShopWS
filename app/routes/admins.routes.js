@@ -1,13 +1,18 @@
 var admins = require('../controllers/admins.controller');
+var users = require('../controllers/users.controller');
 var auth = require('../utils/auth-middleware.utils');
 
 module.exports = function (app) {
     app.post('/admin/register',
         auth.authenticateTokenMiddleware,
-        admins.isAdmin,
-        admins.findUserByEmail,
+        admins.isAdminMiddleware,
+        users.findUserByEmail,
         admins.doesAdminAlreadyExist,
         admins.registerAdmin);
+
+    app.get('/isAdmin',
+        auth.authenticateTokenMiddleware,
+        admins.isAdmin);
 
 /*
  *  The purpose of this route is to create the very first admin
@@ -16,7 +21,7 @@ module.exports = function (app) {
  */
     app.post('/admin/temporary-register',
         auth.authenticateTokenMiddleware,
-        admins.findUserByEmail,
+        users.findUserByEmail,
         admins.doesAdminAlreadyExist,
         admins.registerAdmin);
 };

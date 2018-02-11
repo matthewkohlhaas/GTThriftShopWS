@@ -2,7 +2,7 @@ var Admin = require('../models/admin.model');
 var User = require('../models/user.model');
 var AuthUtils = require('../utils/authentication.utils');
 
-exports.isAdmin = function (req, res, next) {
+exports.isAdminMiddleware = function (req, res, next) {
     var user = AuthUtils.getUserFromToken(req);
     Admin.findOne({ 'user': user }, function (err, admin) {
         if (err || !admin) {
@@ -12,13 +12,14 @@ exports.isAdmin = function (req, res, next) {
     });
 };
 
-exports.findUserByEmail = function (req, res, next) {
-    User.findOne({ 'email': req.body.email }, function (err, user) {
-        if (err || !user) {
-            return res.status(400).send('Could not find user with given email.');
+exports.isAdmin = function (req, res, next) {
+    var user = AuthUtils.getUserFromToken(req);
+    Admin.findOne({ 'user': user }, function (err, admin) {
+        if (err || !admin) {
+            return res.status(200).send(false);
+        } else {
+            return res.status(200).send(true);
         }
-        req.new_admin_user = user;
-        next();
     });
 };
 
@@ -36,7 +37,7 @@ exports.doesAdminAlreadyExist = function (req, res, next) {
 
 exports.registerAdmin = function (req, res, next) {
     var admin = new Admin({
-        user: req.new_admin_user
+        user: req.found_user
     });
     admin.save(function (err) {
         if (err) {

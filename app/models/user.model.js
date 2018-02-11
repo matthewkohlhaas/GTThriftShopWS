@@ -32,6 +32,10 @@ var UserSchema = new Schema({
     positiveRatings: {
         type: Number,
         default: 0
+    },
+    isBanned: {
+        type: Boolean,
+        default: false
     }
 });
 
