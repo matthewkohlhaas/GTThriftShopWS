@@ -245,7 +245,7 @@ function emailUserAboutBan (email_address, subject, text, error_message, success
         if (err) {
             return res.status(503).send(error_message);
         } else {
-            return res.status(200).send(success_message);
+            return res.status(200).send({text: success_message});
         }
     });
 };
