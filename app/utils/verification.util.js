@@ -2,8 +2,8 @@ var jwt = require('jsonwebtoken');
 var config = require('../../config/config');
 
 exports.getToken = function(req) {
-    if (req.headers && req.headers.authorization) {
-        return req.headers.authorization
+    if (req && req.headers && req.headers.authorization) {
+        return req.headers.authorization;
     }
 };
 

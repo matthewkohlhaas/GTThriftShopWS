@@ -1,27 +1,25 @@
 var verification = require('../utils/verification.util');
 var Ticket = require('mongoose').model('Ticket');
+var User = require('mongoose').model('User');
+
 
 exports.createTicket = function(req, res, next) {
     var subject = (req.body.subject) ? req.body.subject.trim() : '';
     var message = (req.body.message) ? req.body.message.trim() : '';
-    var email = (req.body.email) ? req.body.email.trim() : '';
 
-
-    //TODO: authenticate
-
-
-    if (subject === '') {
+    //authenticate
+    if (!verification.verifyToken(req)) {
+        return res.status(401).send('unauthorized');
+    } else if (subject === '') {
         res.status(400).send({successful: false, text: 'Please provide a meaningful subject for the ticket.'});
     } else if (message === '') {
         res.status(400).send({successful: false, text: 'Please provide a descriptive message for your question.'});
-    } else if (message === '') {
-        res.status(400).send({successful: false, text: 'Please provide a valid email address.'});
-
     } else {
+        var user = verification.getUser(req);
         var ticket = new Ticket({
             subject: subject,
             message: message,
-            email: email
+            user: user._id
         });
         ticket.save(function(err) {
             if (err) {
