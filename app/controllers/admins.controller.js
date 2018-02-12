@@ -24,7 +24,7 @@ exports.isAdmin = function (req, res, next) {
 };
 
 exports.doesAdminAlreadyExist = function (req, res, next) {
-    Admin.findOne({ 'user': req.new_admin_user }, function (err, found) {
+    Admin.findOne({ 'user': req.found_user }, function (err, found) {
         if (found) {
             return res.status(422).send('User is already an admin.');
         }
@@ -43,7 +43,7 @@ exports.registerAdmin = function (req, res, next) {
         if (err) {
             return res.status(500).send('Failed to register user as admin.');
         } else {
-            return res.status(201).send('User succesfully registered as admin.');
+            return res.status(201).send({text: 'User succesfully registered as admin.'});
         }
     });
 };
