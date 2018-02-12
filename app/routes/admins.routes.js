@@ -10,7 +10,7 @@ module.exports = function (app) {
         admins.doesAdminAlreadyExist,
         admins.registerAdmin);
 
-    app.get('/isAdmin',
+    app.get('/is-admin',
         auth.authenticateTokenMiddleware,
         admins.isAdmin);
 
