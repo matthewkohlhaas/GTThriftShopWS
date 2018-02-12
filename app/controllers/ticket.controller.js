@@ -4,7 +4,7 @@ var Ticket = require('mongoose').model('Ticket');
 exports.createTicket = function(req, res, next) {
     var subject = (req.body.subject) ? req.body.subject.trim() : '';
     var message = (req.body.message) ? req.body.message.trim() : '';
-    var message = (req.body.email) ? req.body.message.trim() : '';
+    var email = (req.body.email) ? req.body.message.trim() : '';
 
     if (!verification.verifyToken(req)) {
 
