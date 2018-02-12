@@ -4,7 +4,7 @@ var Ticket = require('mongoose').model('Ticket');
 exports.createTicket = function(req, res, next) {
     var subject = (req.body.subject) ? req.body.subject.trim() : '';
     var message = (req.body.message) ? req.body.message.trim() : '';
-    var email = (req.body.email) ? req.body.message.trim() : '';
+    var email = (req.body.email) ? req.body.email.trim() : '';
 
 
     //TODO: authenticate
@@ -12,9 +12,9 @@ exports.createTicket = function(req, res, next) {
 
     if (subject === '') {
         res.status(400).send({successful: false, text: 'Please provide a meaningful subject for the ticket.'});
-    } else if (message === '') {email
+    } else if (message === '') {
         res.status(400).send({successful: false, text: 'Please provide a descriptive message for your question.'});
-    } else if (message === '') {email
+    } else if (message === '') {
         res.status(400).send({successful: false, text: 'Please provide a valid email address.'});
 
     } else {
