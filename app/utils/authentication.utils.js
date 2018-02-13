@@ -7,7 +7,7 @@ exports.getToken = function(req) {
     }
 };
 
-exports.getUser = function(req) {
+exports.getUserFromToken = function(req) {
     var token = this.getToken(req);
     if (token) {
         try {
@@ -20,6 +20,6 @@ exports.getUser = function(req) {
     }
 };
 
-exports.verifyToken = function(req) {
-    return this.getUser(req) !== null;
+exports.authenticateToken = function(req) {
+    return this.getUserFromToken(req) !== null;
 };

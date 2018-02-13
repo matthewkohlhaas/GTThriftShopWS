@@ -1,8 +1,8 @@
-var verification = require('../utils/verification.util');
-var Listing = require('mongoose').model('Listing');
+var authentication = require('../utils/authentication.utils');
+var Listing = require('../models/listing.model');
 
 exports.list = function (req, res, next) {
-    if (!verification.verifyToken(req)) {
+    if (!authentication.authenticateToken(req)) {
         return res.status(401).send('unauthorized');
     } else {
         Listing.find({}, function (err, listings) {
