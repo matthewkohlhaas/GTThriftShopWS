@@ -7,25 +7,26 @@ exports.createTicket = function(req, res, next) {
     var subject = (req.body.subject) ? req.body.subject.trim() : '';
     var message = (req.body.message) ? req.body.message.trim() : '';
 
+    var user = authentication.getUserFromToken(req);
+
     //authenticate
-    if (!authentication.authenticateToken(req)) {
-        return res.status(401).send('unauthorized');
+    if (!user) {
+        res.status(401).send('unauthorized');
     } else if (subject === '') {
-        res.status(400).send({successful: false, text: 'Please provide a meaningful subject for the ticket.'});
+        res.status(400).send({successful: false, text: 'Please provide a subject.'});
     } else if (message === '') {
-        res.status(400).send({successful: false, text: 'Please provide a descriptive message for your question.'});
+        res.status(400).send({successful: false, text: 'Please provide a message.'});
     } else {
-        var user = authentication.getUserFromToken(req);
-        var ticket = new Ticket({
+        new Ticket({
             subject: subject,
             message: message,
             user: user._id
-        });
-        ticket.save(function(err) {
+        }).save(function(err) {
             if (err) {
-                res.status(500).send({successful: false, text: 'ticket was NOT submitted'});
+                res.status(500).send({successful: false, text: 'Failed to send your support message.'});
+            } else {
+                res.status(200).send({successful: true, text: 'Your support message was sent successfully!'});
             }
-            res.status(200).send({successful: true, text: 'ticket ' + ticket.id + ' was submitted', ref: ticket.id});
         });
     }
 };
