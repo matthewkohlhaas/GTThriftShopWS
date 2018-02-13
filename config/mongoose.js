@@ -7,5 +7,6 @@ module.exports = function() {
     require('../app/models/verification-token.model');
     require('../app/models/password-reset-token.model');
     require('../app/models/listing.model');
+    require('../app/models/ticket.model');
     return db;
 };
