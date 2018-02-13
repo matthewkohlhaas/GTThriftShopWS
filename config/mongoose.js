@@ -6,5 +6,6 @@ module.exports = function() {
     require('../app/models/user.model');
     require('../app/models/verification-token.model');
     require('../app/models/listing.model');
+    require('../app/models/ticket.model');
     return db;
 };
