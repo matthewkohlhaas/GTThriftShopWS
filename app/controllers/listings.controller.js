@@ -17,7 +17,7 @@ exports.list = function (req, res, next) {
 
 exports.createListing = function(req, res, next) {
     var name = (req.body.name) ? req.body.name.trim() : '';
-    var price = (req.body.message) ? req.body.price.trim() : '';
+    var price = req.body.price;
     var description = (req.body.description) ? req.body.description.trim() : '';
     var imageUrl = (req.body.imageUrl) ? req.body.imageUrl.trim() : '';
     console.log(description);
