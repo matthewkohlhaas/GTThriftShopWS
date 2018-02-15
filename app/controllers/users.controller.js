@@ -275,26 +275,31 @@ exports.emailUnbannedUser = function (req, res) {
 exports.isUserBanned = function (req, res, next) {
     var user = AuthUtils.getUserFromToken(req);
     User.findById(user._id, function (err, user) {
-        if (err || !user) {
-            return res.status(500).send('Failed to find current user.');
-        }
-        if (user.isBanned == true) {
+        if (err) {
+            return res.status(500).send(err.message);
+        } else if (!user) {
+            return res.status(400).send('Could not find user.');
+        } else if (user.isBanned === true) {
             return res.status(403).send('forbidden');
+        } else {
+            next();
         }
-        next();
     });
 };
 
 exports.getCurrentUser = function (req, res) {
     var user = AuthUtils.getUserFromToken(req);
-    User.findById(user._id, function (err, user) {
-        if (err) {
-            return res.status(500).send(err.message);
-        } else {
-            if (!user) {
-                return res.status(401).send('unauthorized');
+
+    if (!user) {
+        return res.status(401).send('unauthorized');
+    } else {
+        User.findById(user._id, function (err, user) {
+            if (err) {
+                return res.status(500).send(err.message);
+            } else if (!user) {
+                return res.status(400).send('Could not find user.');
             }
-        }
-        return res.status(200).json(user);
-    });
+            return res.status(200).json(user);
+        });
+    }
 };
