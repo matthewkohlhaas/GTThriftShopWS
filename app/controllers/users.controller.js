@@ -288,9 +288,13 @@ exports.isUserBanned = function (req, res, next) {
 exports.getCurrentUser = function (req, res) {
     var user = AuthUtils.getUserFromToken(req);
     User.findById(user._id, function (err, user) {
-        if (err || !user) {
-            return res.status(500).send('Failed to find current user.');
+        if (err) {
+            return res.status(500).send(err.message);
+        } else {
+            if (!user) {
+                return res.status(401).send('unauthorized');
+            }
         }
-        return res.json(user);
+        return res.status(200).json(user);
     });
 };
