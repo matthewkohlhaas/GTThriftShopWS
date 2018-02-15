@@ -284,3 +284,13 @@ exports.isUserBanned = function (req, res, next) {
         next();
     });
 };
+
+exports.getCurrentUser = function (req, res) {
+    var user = AuthUtils.getUserFromToken(req);
+    User.findById(user._id, function (err, user) {
+        if (err || !user) {
+            return res.status(500).send('Failed to find current user.');
+        }
+        return res.json(user);
+    });
+};
