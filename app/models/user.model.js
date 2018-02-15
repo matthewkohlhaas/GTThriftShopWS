@@ -21,6 +21,14 @@ var UserSchema = new Schema({
         type: String,
         required: true
     },
+    profilePictureUrl: {
+        type: String,
+        required: false
+    },
+    profileBio: {
+        type: String,
+        required: false
+    },
     isVerified: {
         type: Boolean,
         default: false
