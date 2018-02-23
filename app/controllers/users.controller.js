@@ -166,22 +166,19 @@ exports.sendPasswordResetEmail = function (req, res, next) {
                     if (err) {
                         res.status(500).send({successful: false, text: err.message});
                     } else {
-                        nodemailer.createTransport(TRANSPORTER).sendMail({
-                            from: EMAIL_FROM,
-                            to: user.email,
-                            subject: EMAIL_RESET_PASSWORD_SUBJECT,
-                            text: 'Hello ' + user.firstName + ' ' + user.lastName + ',\n\nYou can reset your GT '
-                            + 'ThriftShop password at the following link:\nhttp:\/\/' + config.uiUrl
-                            + '\/reset-password/' + token.token
+
+                        const emailSubject = 'Reset Your GT ThriftShop Password';
+
+                        const emailText = 'Hello ' + user.firstName + ' ' + user.lastName + ',\n\nYou can reset your '
+                            + 'GT ThriftShop password at the following link:\nhttp:\/\/' + config.uiUrl
+                            + '\/reset-password/' + token.token;
+
+                        EmailUtils.sendEmail(user.email, emailSubject, emailText, function () {
+                            res.status(200).send({successful: true, text: 'Check your email for a link to reset '
+                                + 'your password.'});
                         }, function (err) {
-                            if (err) {
-                                res.status(503).send({successful: false, text: 'Our email service failed to send a '
-                                    + 'password reset email.'});
-                            } else {
-                                res.status(200).send({successful: true, text: 'Check your email for a link to reset '
-                                    + 'your password.'
-                                });
-                            }
+                            res.status(503).send({successful: false, text: 'Our email service failed to send a '
+                                + 'password reset email.'});
                         });
                     }
                 });
