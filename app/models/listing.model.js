@@ -9,7 +9,8 @@ var ListingSchema = new Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
-    }
+    },
+    createdAt: Date
 });
 
 ListingSchema.virtual('userRating').get(function() {
