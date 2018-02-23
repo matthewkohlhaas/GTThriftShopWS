@@ -1,13 +1,12 @@
 var jwt = require('jsonwebtoken');
 var nodemailer = require('nodemailer');
 var config = require('../../config/config');
-var AuthUtils = require('../utils/authentication.utils');
 var User = require('../models/user.model');
 var VerificationToken = require('../models/verification-token.model');
 var PasswordResetToken = require('../models/password-reset-token.model');
+var AuthUtils = require('../utils/authentication.utils');
+var EmailUtils = require('../utils/email.utils');
 
-const EMAIL_REGEX = new RegExp('^(?:[a-zA-Z0-9!#$%&\'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&\'*+/=?^_`{|}~-]+)*|"(?:['
-    + '\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@gatech.edu$');
 const MIN_PASSWORD_LENGTH = 8;
 const TOKEN_EXPIRATION_TIME = '7 days';
 const TRANSPORTER = {
@@ -19,8 +18,6 @@ const TRANSPORTER = {
 };
 
 const EMAIL_FROM = config.emailUsername;
-const EMAIL_VERIFY_SUBJECT = 'Verify Your GT ThriftShop Account';
-const EMAIL_RESET_PASSWORD_SUBJECT = 'Reset Your GT ThriftShop Password';
 
 exports.createAccount = function (req, res) {
     var email = (req.body.email) ? req.body.email.trim().toLowerCase() : '';
@@ -28,7 +25,7 @@ exports.createAccount = function (req, res) {
     var firstName = (req.body.firstName) ? req.body.firstName.trim() : '';
     var lastName = (req.body.lastName) ? req.body.lastName.trim() : '';
 
-    if (!EMAIL_REGEX.test(email)) {
+    if (!EmailUtils.EMAIL_REGEX.test(email)) {
         res.status(400).send({successful: false, text: 'Please provide a valid Georgia Tech email address'});
 
     } else if (password.length < MIN_PASSWORD_LENGTH) {
@@ -53,30 +50,15 @@ exports.createAccount = function (req, res) {
                 res.status(400).send({successful: false, text: 'The email address, ' +  user.email
                     + ' is already associated with another account.'});
             } else {
-                const failureMessage = 'Your account was created, however we could not send a verification email.';
+                const errorMessage = 'Your account was created, however we could not send a verification email.';
 
                 var token = new VerificationToken({user: user._id});
 
                 token.save(function (err) {
                     if (err) {
-                        res.status(500).send({successful: true, text: failureMessage});
+                        res.status(500).send({successful: true, text: errorMessage});
                     } else {
-                        nodemailer.createTransport(TRANSPORTER).sendMail({
-                            from: EMAIL_FROM,
-                            to: user.email,
-                            subject: EMAIL_VERIFY_SUBJECT,
-                            text: 'Hello ' + user.firstName + ' ' + user.lastName + ',\n\nPlease verify your GT '
-                            + 'ThriftShop account by clicking the link:\nhttp:\/\/' + config.uiUrl + '\/verify/'
-                            + token.token
-                        }, function (err) {
-                            if (err) {
-                                res.status(503).send({successful: true, text: failureMessage});
-                            } else {
-                                res.status(200).send({successful: true, text: 'Check your email for a link to verify '
-                                    + 'your account.'
-                                });
-                            }
-                        });
+                        sendVerificationEmail(user, token, errorMessage, true, res);
                     }
                 });
             }
@@ -87,7 +69,7 @@ exports.createAccount = function (req, res) {
 exports.resendVerificationEmail = function (req, res, next) {
     var email = (req.body.email) ? req.body.email.trim().toLowerCase() : '';
 
-    if (!EMAIL_REGEX.test(email)) {
+    if (!EmailUtils.EMAIL_REGEX.test(email)) {
         res.status(400).send({successful: false, text: 'Please provide a valid Georgia Tech email address'});
 
     } else {
@@ -107,29 +89,30 @@ exports.resendVerificationEmail = function (req, res, next) {
                     if (err) {
                         res.status(500).send({successful: false, text: err.message});
                     } else {
-                        nodemailer.createTransport(TRANSPORTER).sendMail({
-                            from: EMAIL_FROM,
-                            to: user.email,
-                            subject: EMAIL_VERIFY_SUBJECT,
-                            text: 'Hello ' + user.firstName + ' ' + user.lastName + ',\n\nPlease verify your GT '
-                            + 'ThriftShop account by clicking the link:\nhttp:\/\/' + config.uiUrl + '\/verify/'
-                            + token.token
-                        }, function (err) {
-                            if (err) {
-                                res.status(503).send({successful: false, text: 'Our email service failed to send a '
-                                    + 'verification email.'});
-                            } else {
-                                res.status(200).send({successful: true, text: 'Check your email for a link to verify '
-                                    + 'your account.'
-                                });
-                            }
-                        });
+                        const errorMessage = 'Our email service failed to send a verification email.';
+
+                        sendVerificationEmail(user, token, errorMessage, false, res);
                     }
                 });
             }
         });
     }
 };
+
+function sendVerificationEmail(user, token, errorMessage, successfulOnErr, res) {
+    const emailSubject = 'Verify Your GT ThriftShop Account';
+
+    const emailText = 'Hello ' + user.firstName + ' ' + user.lastName + ',\n\nPlease verify your GT ThriftShop account '
+        + 'by clicking the link:\nhttp:\/\/' + config.uiUrl + '\/verify/' + token.token;
+
+    const successMessage = 'Check your email for a link to verify your account.';
+
+    EmailUtils.sendEmail(user.email, emailSubject, emailText, function () {
+        res.status(200).send({successful: true, text: successMessage});
+    }, function (err) {
+        res.status(503).send({successful: successfulOnErr, text: errorMessage});
+    });
+}
 
 exports.verifyUser = function (req, res, next) {
     VerificationToken.findOne({token: req.params.token}, function (err, token) {
@@ -166,7 +149,7 @@ exports.verifyUser = function (req, res, next) {
 exports.sendPasswordResetEmail = function (req, res, next) {
     var email = (req.body.email) ? req.body.email.trim().toLowerCase() : '';
 
-    if (!EMAIL_REGEX.test(email)) {
+    if (!EmailUtils.EMAIL_REGEX.test(email)) {
         res.status(400).send({successful: false, text: 'Please provide a valid Georgia Tech email address'});
 
     } else {
