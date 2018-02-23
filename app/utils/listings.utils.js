@@ -1,9 +1,10 @@
+var arrayContains = require('array-contains');
+
+const ATTRIBUTES = ['price', 'createdAt'];
+
 var getAttribute = function(req) {
     var attribute = req.query['sort'];
-    if (!attribute) {
-        return null;
-    }
-    if (attribute == 'price') {
+    if (arrayContains(ATTRIBUTES, attribute)) {
         return attribute;
     }
     return null;
