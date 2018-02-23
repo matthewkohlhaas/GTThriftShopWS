@@ -1,5 +1,4 @@
 var jwt = require('jsonwebtoken');
-var nodemailer = require('nodemailer');
 var config = require('../../config/config');
 var User = require('../models/user.model');
 var VerificationToken = require('../models/verification-token.model');
@@ -9,15 +8,6 @@ var EmailUtils = require('../utils/email.utils');
 
 const MIN_PASSWORD_LENGTH = 8;
 const TOKEN_EXPIRATION_TIME = '7 days';
-const TRANSPORTER = {
-    service: 'gmail',
-    auth: {
-        user: config.emailUsername,
-        pass: config.emailPassword
-    }
-};
-
-const EMAIL_FROM = config.emailUsername;
 
 exports.createAccount = function (req, res) {
     var email = (req.body.email) ? req.body.email.trim().toLowerCase() : '';
@@ -304,20 +294,13 @@ exports.unbanUser = function (req, res, next) {
     updateUserBan(req.found_user, false, 'Failed to unban user.', next);
 };
 
-function emailUserAboutBan (email_address, subject, text, error_message, success_message, res) {
-    nodemailer.createTransport(TRANSPORTER).sendMail({
-        from: EMAIL_FROM,
-        to: email_address,
-        subject: subject,
-        text: text
+function emailUserAboutBan (email_address, subject, text, errorMessage, successMessage, res) {
+    EmailUtils.sendEmail(email_address, subject, text, function () {
+        return res.status(200).send({text: successMessage});
     }, function (err) {
-        if (err) {
-            return res.status(503).send(error_message);
-        } else {
-            return res.status(200).send({text: success_message});
-        }
+        return res.status(503).send(errorMessage);
     });
-};
+}
 
 exports.emailBannedUser = function (req, res) {
     var email_address = req.found_user.email;
