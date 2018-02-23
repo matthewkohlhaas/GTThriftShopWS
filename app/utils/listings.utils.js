@@ -1,3 +1,5 @@
+var arrayContains = require('array-contains');
+
 const ATTRIBUTES = ['price'];
 
 exports.addSortToQuery = function (query, req) {
@@ -5,7 +7,7 @@ exports.addSortToQuery = function (query, req) {
     if (!attribute) {
         return;
     }
-    if (attribute !== 'price') {
+    if (!arrayContains(ATTRIBUTES, attribute)) {
         return;
     }
     var direction = 1;
