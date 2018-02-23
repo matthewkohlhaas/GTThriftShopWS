@@ -17,6 +17,8 @@ module.exports = function (app) {
 
     app.get('/authenticate', users.authenticateToken);
 
+    app.route('/profile').get(users.getCurrentUser);
+
     app.post('/user/ban',
         auth.authenticateTokenMiddleware,
         admins.isAdminMiddleware,
