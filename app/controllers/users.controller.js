@@ -376,7 +376,7 @@ exports.isUserBanned = function (req, res, next) {
     });
 };
 
-exports.getCurrentUser = function (req, res) {
+exports.getUserFromToken = function (req, res) {
     var user = AuthUtils.getUserFromToken(req);
 
     if (!user) {
