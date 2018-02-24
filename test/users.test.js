@@ -12,13 +12,13 @@ const PasswordResetToken = require('../app/models/password-reset-token.model');
 
 chai.use(chaiHttp);
 
-const ROUTE_CREATE_ACCOUNT = '/create-account';
-const ROUTE_RESEND_VERIFICATION = '/resend-verification';
-const ROUTE_VERIFY = '/verify';
-const ROUTE_SEND_PASSWORD_RESET = '/send-password-reset';
-const ROUTE_RESET_PASSWORD = '/reset-password';
-const ROUTE_LOGIN = '/login';
-const ROUTE_AUTHENTICATE = '/authenticate';
+const ROUTE_CREATE_ACCOUNT = '/users';
+const ROUTE_RESEND_VERIFICATION = '/users/send-verification';
+const ROUTE_VERIFY = '/users/verify';
+const ROUTE_SEND_PASSWORD_RESET = '/users/send-password-reset';
+const ROUTE_RESET_PASSWORD = '/users/reset-password';
+const ROUTE_LOGIN = '/users/login';
+const ROUTE_AUTHENTICATE = '/users/authenticate';
 
 const TOKEN_REGEX = /^[a-zA-Z0-9_\-]+\.[a-zA-Z0-9_\-]+\.[a-zA-Z0-9_\-]+$/;
 
