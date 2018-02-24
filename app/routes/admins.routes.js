@@ -3,14 +3,14 @@ var users = require('../controllers/users.controller');
 var auth = require('../utils/auth-middleware.utils');
 
 module.exports = function (app) {
-    app.post('/admin/register',
+    app.post('/admins',
         auth.authenticateTokenMiddleware,
         admins.isAdminMiddleware,
         users.findUserByEmail,
         admins.doesAdminAlreadyExist,
         admins.registerAdmin);
 
-    app.get('/is-admin',
+    app.get('/admins/is-admin',
         auth.authenticateTokenMiddleware,
         admins.isAdmin);
 
@@ -19,7 +19,7 @@ module.exports = function (app) {
  *  and then for this route to be deleted. After this route is
  *  deleted, new admins can only be registered by another admin.
  */
-    app.post('/admin/temporary-register',
+    app.post('/admins/temp',
         auth.authenticateTokenMiddleware,
         users.findUserByEmail,
         admins.doesAdminAlreadyExist,
