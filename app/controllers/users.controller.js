@@ -254,7 +254,9 @@ exports.resetPassword = function (req, res, next) {
 exports.login = function (req, res) {
     var failureMsg = 'The email or password you provided was incorrect.';
 
-    User.findOne({email: req.body.email.toLowerCase()})
+    var email = (req.body.email) ? req.body.email.trim().toLowerCase() : '';
+
+    User.findOne({email: email})
         .select('+password')
         .exec(function (err, user) {
             if (err) {
