@@ -10,7 +10,10 @@ var ListingSchema = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     },
-    createdAt: Date
+    createdAt: {
+        type: Date,
+        default: Date.now
+    }
 });
 
 ListingSchema.virtual('userRating').get(function() {

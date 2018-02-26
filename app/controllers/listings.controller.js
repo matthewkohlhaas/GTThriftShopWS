@@ -34,8 +34,7 @@ exports.createListing = function(req, res, next) {
             description: description,
             price: price,
             imageUrl: imageUrl,
-            user: user._id,
-            createdAt: Date.now()
+            user: user._id
 
         }).save(function(err) {
             if (err) {
