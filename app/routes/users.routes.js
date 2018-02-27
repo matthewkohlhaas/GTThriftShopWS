@@ -6,7 +6,8 @@ module.exports = function (app) {
     app.route('/users').post(users.createAccount);
 
     // TODO add a PUT at this route to update currently logged in user
-    app.route('/users/from-token').get(users.getUserFromToken);
+    // So, you change it to app.route('/users/from-token').get(users.getUserFromToken).put(users.someFunctionName);
+    app.get('/users/from-token', users.getUserFromToken);
 
     // TODO use this route later
     // app.get('/users/:email', users.getUserByEmail);
