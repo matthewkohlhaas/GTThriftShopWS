@@ -172,7 +172,7 @@ exports.sendPasswordResetEmail = function (req, res, next) {
     } else {
         User.findOne({email: email}, function (err, user) {
             if (err) {
-
+                res.status(500).send({successful: false, text: err.message});
             } else if (!user) {
                 res.status(400).send({successful: false, text: 'We were unable to find an account associated with that '
                     + 'email address.' });
@@ -219,7 +219,7 @@ exports.resetPassword = function (req, res, next) {
                 res.status(500).send({successful: false, text: err.message});
             } else if (!token) {
                 res.status(400).send({successful: false, text: 'We are unable to reset your password. This password '
-                    + 'reset link my have expired.'})
+                    + 'reset link may have expired.'})
             } else {
                 User.findOne({_id: token.user}, function (err, user) {
                     if (err) {
