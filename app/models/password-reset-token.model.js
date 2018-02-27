@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 var crypto = require('crypto');
 var Schema = mongoose.Schema;
 
-var VerificationTokenSchema = new Schema({
+var PasswordResetTokenSchema = new Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
@@ -16,11 +16,11 @@ var VerificationTokenSchema = new Schema({
     token: String
 });
 
-VerificationTokenSchema.pre('save', function (next) {
+PasswordResetTokenSchema.pre('save', function (next) {
     if (this.isNew) {
         this.token = crypto.randomBytes(16).toString('hex');
     }
     return next();
 });
 
-module.exports = mongoose.model('VerificationToken', VerificationTokenSchema);
+module.exports = mongoose.model('PasswordResetToken', PasswordResetTokenSchema);
