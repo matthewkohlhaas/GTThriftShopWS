@@ -15,7 +15,7 @@ exports.createAccount = function (req, res) {
     var firstName = (req.body.firstName) ? req.body.firstName.trim() : '';
     var lastName = (req.body.lastName) ? req.body.lastName.trim() : '';
 
-    if (!EmailUtils.EMAIL_REGEX.test(email)) {
+    if (!EmailUtils.validateEmail(email)) {
         res.status(400).send({successful: false, text: 'Please provide a valid Georgia Tech email address'});
 
     } else if (password.length < MIN_PASSWORD_LENGTH) {
@@ -59,7 +59,7 @@ exports.createAccount = function (req, res) {
 exports.resendVerificationEmail = function (req, res, next) {
     var email = (req.body.email) ? req.body.email.trim().toLowerCase() : '';
 
-    if (!EmailUtils.EMAIL_REGEX.test(email)) {
+    if (!EmailUtils.validateEmail(email)) {
         res.status(400).send({successful: false, text: 'Please provide a valid Georgia Tech email address'});
 
     } else {
@@ -139,7 +139,7 @@ exports.verifyUser = function (req, res, next) {
 exports.sendPasswordResetEmail = function (req, res, next) {
     var email = (req.body.email) ? req.body.email.trim().toLowerCase() : '';
 
-    if (!EmailUtils.EMAIL_REGEX.test(email)) {
+    if (!EmailUtils.validateEmail(email)) {
         res.status(400).send({successful: false, text: 'Please provide a valid Georgia Tech email address'});
 
     } else {
