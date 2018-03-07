@@ -7,11 +7,17 @@ exports.list = function (req, res, next) {
     listUtils.addSortToQuery(query, req);
     query.exec(function (err, listings) {
         if (err) {
-            return next(err);
+            return res.status(500).send(err.message);
         } else {
-            res.json(listings);
+            req.listings = listings;
+            next();
         }
     });
+};
+
+exports.postProcessListings = function (req, res) {
+    listUtils.postProcessSort(req);
+    return res.status(200).send(req.listings);
 };
 
 exports.createListing = function(req, res, next) {

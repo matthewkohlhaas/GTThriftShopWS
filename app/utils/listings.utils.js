@@ -2,7 +2,7 @@ var arrayContains = require('array-contains');
 
 const ATTRIBUTES = ['price', 'createdAt'];
 
-var getAttribute = function(req) {
+var getAttribute = function (req) {
     var attribute = req.query['sort'];
     if (arrayContains(ATTRIBUTES, attribute)) {
         return attribute;
@@ -10,7 +10,7 @@ var getAttribute = function(req) {
     return null;
 };
 
-var getDirection = function(req) {
+var getDirection = function (req) {
     if (req.query['direction'] === 'descending') {
         return 'descending';
     }
@@ -25,4 +25,14 @@ exports.addSortToQuery = function (query, req) {
     var direction = getDirection(req);
     var sort_param = [attribute, direction];
     query.sort([sort_param]);
+};
+
+var sortByRating = function (req) {
+    // TODO
+};
+
+exports.postProcessSort = function (req) {
+    if (req.query['sort'] === 'sellerRating') {
+        sortByRating(req);
+    }
 };

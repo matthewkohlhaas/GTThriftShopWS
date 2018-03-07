@@ -11,7 +11,8 @@ module.exports = function (app) {
     app.route('/listings')
         .get(
             auth.authenticateTokenMiddleware,
-            listings.list
+            listings.list,
+            listings.postProcessListings
         ).post(
             listings.createListing
         );
