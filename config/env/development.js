@@ -2,7 +2,7 @@ var secret;
 try {
     secret = require('../../secret.config');
 } catch (err) {
-    secret = require('../../secret.config.sample');
+    secret = require('../../secret.config.json');
 }
 
 module.exports = {
