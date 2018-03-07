@@ -29,7 +29,7 @@ exports.addSortToQuery = function (query, req) {
 };
 
 var ratingComparator = function (a, b) {
-    return a.userRating - b.userRating;
+    return b.userRating - a.userRating;
 };
 
 var sortByRating = function (req) {
