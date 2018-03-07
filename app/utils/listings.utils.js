@@ -1,4 +1,5 @@
 var arrayContains = require('array-contains');
+var stableSort = require("stable");
 
 const ATTRIBUTES = ['price', 'createdAt'];
 
@@ -27,12 +28,16 @@ exports.addSortToQuery = function (query, req) {
     query.sort([sort_param]);
 };
 
+var ratingComparator = function (a, b) {
+    return a.userRating - b.userRating;
+};
+
 var sortByRating = function (req) {
-    // TODO
+    stableSort.inplace(req.listings, ratingComparator);
 };
 
 exports.postProcessSort = function (req) {
-    if (req.query['sort'] === 'sellerRating') {
+    if (req.query['sort'] === 'userRating') {
         sortByRating(req);
     }
 };
