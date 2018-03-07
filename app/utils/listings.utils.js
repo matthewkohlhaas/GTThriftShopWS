@@ -11,8 +11,16 @@ var getAttribute = function (req) {
     return null;
 };
 
+var isAscending = function (req) {
+    return req.query['direction'] === 'ascending';
+};
+
+var isDescending = function (req) {
+    return req.query['direction'] === 'descending';
+};
+
 var getDirection = function (req) {
-    if (req.query['direction'] === 'descending') {
+    if (isDescending(req)) {
         return 'descending';
     }
     return 'ascending';
@@ -28,12 +36,20 @@ exports.addSortToQuery = function (query, req) {
     query.sort([sort_param]);
 };
 
-var ratingComparator = function (a, b) {
+var ratingDescendingComparator = function (a, b) {
     return b.userRating - a.userRating;
 };
 
+var ratingAscendingComparator = function (a, b) {
+    return a.userRating - b.userRating;
+};
+
 var sortByRating = function (req) {
-    stableSort.inplace(req.listings, ratingComparator);
+    if (isAscending(req)) {
+        stableSort.inplace(req.listings, ratingAscendingComparator);
+    } else {
+        stableSort.inplace(req.listings, ratingDescendingComparator);
+    }
 };
 
 exports.postProcessSort = function (req) {
