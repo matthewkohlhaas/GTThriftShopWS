@@ -6,7 +6,6 @@ var User = require('mongoose').model('User');
 exports.flagListing = function(req, res, next) {
     var listing = req.body.listing;
     var description = (req.body.description) ? req.body.description.trim() : '';
-
     var user = authentication.getUserFromToken(req); //user who flagged listing
 
     //authenticate
@@ -31,4 +30,3 @@ exports.flagListing = function(req, res, next) {
         });
     }
 };
-
