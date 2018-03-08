@@ -50,14 +50,14 @@ exports.getById = function(req, res, next) {
         } else if (!listing) {
             res.status(400).send({successful: false, text: 'Can not find listing :/'});
         } else {
-            res.status(200).send({successful: true, text: listing._id});
+            res.json(listing);
         }
-    })
+    }).populate('user');
 };
 
 
 exports.editListing = function (req, res, next) {
-    Listing.findOne({_id: req.params.listing}, function (err, listing) {
+    Listing.findOne({_id: req.body.listing}, function (err, listing) {
         if (err) {
             res.status(500).send({successful: false, text: err.message});
         } else if (!listing) {
@@ -75,7 +75,7 @@ exports.editListing = function (req, res, next) {
                 }
             });
         }
-    })
+    }).populate('user');
 
 };
 
