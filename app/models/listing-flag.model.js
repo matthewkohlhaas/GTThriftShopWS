@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-var FlagSchema = new Schema({
+var ListingFlagSchema = new Schema({
     description: String,
     user: {
         type: mongoose.Schema.Types.ObjectId,
@@ -15,4 +15,4 @@ var FlagSchema = new Schema({
     },
 });
 
-module.exports = mongoose.model('Flag', FlagSchema);
+module.exports = mongoose.model('ListingFlag', ListingFlagSchema);
