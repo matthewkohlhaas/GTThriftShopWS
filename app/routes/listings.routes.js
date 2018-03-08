@@ -15,4 +15,11 @@ module.exports = function (app) {
         ).post(
             listings.createListing
         );
+
+    app.route('/edit-listing/:id')
+        .post(
+            auth.authenticateTokenMiddleware,
+            listings.editListing
+        )
+
 };
