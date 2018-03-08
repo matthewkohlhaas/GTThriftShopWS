@@ -15,6 +15,14 @@ module.exports = function (app) {
 
     app.route('/profile').get(users.getCurrentUser);
 
+    app.post('/user/update-first-name', users.updateFirstName);
+
+    app.post('/user/update-last-name', users.updateLastName);
+
+    app.post('/user/update-profile-picture-url', users.updateProfilePictureUrl);
+
+    app.post('/user/update-profile-bio', users.updateProfileBio);
+
     app.post('/user/ban',
         auth.authenticateTokenMiddleware,
         admins.isAdminMiddleware,
