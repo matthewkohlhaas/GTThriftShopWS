@@ -9,13 +9,13 @@ module.exports = function (app) {
     // So, you change it to app.route('/users/from-token').get(users.getUserFromToken).put(users.someFunctionName);
     app.get('/users/from-token', users.getUserFromToken);
   
-    app.post('/user/update-first-name', users.updateFirstName);
+    app.post('/users/from-token/first-name', users.updateFirstName);
 
-    app.post('/user/update-last-name', users.updateLastName);
+    app.post('/users/from-token/last-name', users.updateLastName);
 
-    app.post('/user/update-profile-picture-url', users.updateProfilePictureUrl);
+    app.post('/users/from-token/profile-picture-url', users.updateProfilePictureUrl);
 
-    app.post('/user/update-profile-bio', users.updateProfileBio);
+    app.post('/users/from-token/profile-bio', users.updateProfileBio);
 
     // TODO use this route later
     // app.get('/users/:email', users.getUserByEmail);
