@@ -366,88 +366,104 @@ exports.getUserFromToken = function (req, res) {
 exports.updateFirstName = function (req, res) {
     var firstName = (req.body.firstName) ? req.body.firstName.trim() : '';
     var user = AuthUtils.getUserFromToken(req);
-    User.findById(user._id, function(err, user) {
-        if (err) {
-            res.status(500).send({successful: false, text: err.message});
-        } else if (!user) {
-            res.status(400).send({successful: false, text: 'Could not find user.'})
-        } else {
-            user.firstName = firstName;
-            user.save(function(err) {
-                if (err) {
-                    res.status(500).send({successful: false, text: err.message});
-                } else {
-                    res.status(200).send({successful: true, text: 'Your first name has been '
-                        + 'successfully changed to ' + firstName + ' !'});
-                }
-            });
-        }
-    });
+    if (!user) {
+        res.status(401).send('unauthorized');
+    } else {
+        User.findById(user._id, function(err, user) {
+            if (err) {
+                res.status(500).send({successful: false, text: err.message});
+            } else if (!user) {
+                res.status(400).send({successful: false, text: 'Could not find user.'})
+            } else {
+                user.firstName = firstName;
+                user.save(function(err) {
+                    if (err) {
+                        res.status(500).send({successful: false, text: err.message});
+                    } else {
+                        res.status(200).send({successful: true, text: 'Your first name has been '
+                            + 'successfully changed to ' + firstName + ' !'});
+                    }
+                });
+            }
+        });
+    }
 };
 
 exports.updateLastName = function (req, res) {
     var lastName = (req.body.lastName) ? req.body.lastName.trim() : '';
     var user = AuthUtils.getUserFromToken(req);
-    User.findById(user._id, function(err, user) {
-        if (err) {
-            res.status(500).send({successful: false, text: err.message});
-        } else if (!user) {
-            res.status(400).send({successful: false, text: 'Could not find user.'})
-        } else {
-            user.lastName = lastName;
-            user.save(function(err) {
-                if (err) {
-                    res.status(500).send({successful: false, text: err.message});
-                } else {
-                    res.status(200).send({successful: true, text: 'Your last name has been '
-                        + 'successfully changed to ' + lastName + '!'});
-                }
-            });
-        }
-    });
+    if (!user) {
+        res.status(401).send('unauthorized');
+    } else {
+        User.findById(user._id, function(err, user) {
+            if (err) {
+                res.status(500).send({successful: false, text: err.message});
+            } else if (!user) {
+                res.status(400).send({successful: false, text: 'Could not find user.'})
+            } else {
+                user.lastName = lastName;
+                user.save(function(err) {
+                    if (err) {
+                        res.status(500).send({successful: false, text: err.message});
+                    } else {
+                        res.status(200).send({successful: true, text: 'Your last name has been '
+                            + 'successfully changed to ' + lastName + '!'});
+                    }
+                });
+            }
+        });
+    }
 };
 
 exports.updateProfilePictureUrl = function (req, res) {
     var profilePictureUrl = (req.body.profilePictureUrl) ? req.body.profilePictureUrl.trim() : '';
     var user = AuthUtils.getUserFromToken(req);
-    User.findById(user._id, function(err, user) {
-        if (err) {
-            res.status(500).send({successful: false, text: err.message});
-        } else if (!user) {
-            res.status(400).send({successful: false, text: 'Could not find user.'})
-        } else {
-            user.profilePictureUrl = profilePictureUrl;
-            user.save(function(err) {
-                if (err) {
-                    res.status(500).send({successful: false, text: err.message});
-                } else {
-                    res.status(200).send({successful: true, text: 'Your profile picture has been '
-                        + 'successfully changed!'});
-                }
-            });
-        }
-    });
+    if (!user) {
+        res.status(401).send('unauthorized');
+    } else {
+        User.findById(user._id, function(err, user) {
+            if (err) {
+                res.status(500).send({successful: false, text: err.message});
+            } else if (!user) {
+                res.status(400).send({successful: false, text: 'Could not find user.'})
+            } else {
+                user.profilePictureUrl = profilePictureUrl;
+                user.save(function(err) {
+                    if (err) {
+                        res.status(500).send({successful: false, text: err.message});
+                    } else {
+                        res.status(200).send({successful: true, text: 'Your profile picture has been '
+                            + 'successfully changed!'});
+                    }
+                });
+            }
+        });
+    }
 };
 
 exports.updateProfileBio = function (req, res) {
     var profileBio = (req.body.profileBio) ? req.body.profileBio.trim() : '';
     var user = AuthUtils.getUserFromToken(req);
-    User.findById(user._id, function(err, user) {
-        if (err) {
-            res.status(500).send({successful: false, text: err.message});
-        } else if (!user) {
-            res.status(400).send({successful: false, text: 'Could not find user.'})
-        } else {
-            user.profileBio = profileBio;
-            user.save(function(err) {
-                if (err) {
-                    res.status(500).send({successful: false, text: err.message});
-                } else {
-                    res.status(200).send({successful: true, text: 'Your profile bio has been '
-                        + 'successfully changed!'});
-                }
-            });
-        }
-    });
+    if (!user) {
+        res.status(401).send('unauthorized');
+    } else {
+        User.findById(user._id, function(err, user) {
+            if (err) {
+                res.status(500).send({successful: false, text: err.message});
+            } else if (!user) {
+                res.status(400).send({successful: false, text: 'Could not find user.'})
+            } else {
+                user.profileBio = profileBio;
+                user.save(function(err) {
+                    if (err) {
+                        res.status(500).send({successful: false, text: err.message});
+                    } else {
+                        res.status(200).send({successful: true, text: 'Your profile bio has been '
+                            + 'successfully changed!'});
+                    }
+                });
+            }
+        });
+    }
 };
 
