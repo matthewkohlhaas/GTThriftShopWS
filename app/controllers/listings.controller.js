@@ -1,14 +1,23 @@
 var authentication = require('../utils/authentication.utils');
 var Listing = require('../models/listing.model');
+var listUtils = require('../utils/listings.utils');
 
 exports.list = function (req, res, next) {
-    Listing.find({}, function (err, listings) {
+    var query = Listing.find({}).populate('user');
+    listUtils.addSortToQuery(query, req);
+    query.exec(function (err, listings) {
         if (err) {
-            return next(err);
+            return res.status(500).send(err.message);
         } else {
-            res.json(listings);
+            req.listings = listings;
+            next();
         }
-    }).populate('user');
+    });
+};
+
+exports.postProcessListings = function (req, res) {
+    listUtils.postProcessSort(req);
+    return res.status(200).send(req.listings);
 };
 
 exports.createListing = function(req, res, next) {
