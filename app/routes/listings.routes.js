@@ -20,6 +20,5 @@ module.exports = function (app) {
         .post(
             auth.authenticateTokenMiddleware,
             listings.editListing
-        )
-
+        );
 };
