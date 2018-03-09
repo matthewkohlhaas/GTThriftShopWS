@@ -5,6 +5,11 @@ var auth = require('../utils/auth-middleware.utils');
 module.exports = function (app) {
     app.route('/users').post(users.createAccount);
 
+    app.get('/users/:id',
+        auth.authenticateTokenMiddleware,
+        users.getUserFromId
+    );
+
     // TODO add a PUT at this route to update currently logged in user
     // So, you change it to app.route('/users/from-token').get(users.getUserFromToken).put(users.someFunctionName);
     app.get('/users/from-token', users.getUserFromToken);

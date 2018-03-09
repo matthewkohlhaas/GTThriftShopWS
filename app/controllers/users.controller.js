@@ -345,6 +345,18 @@ exports.isUserBanned = function (req, res, next) {
     });
 };
 
+exports.getUserFromId = function (req, res, next) {
+    User.findOne({_id: req.params.id}, function (err, user) {
+        if (err) {
+            res.status(500).send(err.message);
+        } else if (!user) {
+            res.status(400).send('Could not find user with given id.');
+        } else {
+            res.status(200).json(user);
+        }
+    });
+};
+
 exports.getUserFromToken = function (req, res) {
     var user = AuthUtils.getUserFromToken(req);
     if (!user) {
