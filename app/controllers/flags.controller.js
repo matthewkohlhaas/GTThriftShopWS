@@ -12,9 +12,10 @@ exports.flagListing = function(req, res, next) {
     if (!user) {
         res.status(401).send('unauthorized');
     } else if (!listing) {
-        res.status(400).send({successful: false, text: 'Cannot identity listing.'});
+        res.status(400).send({successful: false, text: 'Please provide a listing to flag.'});
     } else if (description === '') {
-        res.status(400).send({successful: false, text: 'Please provide a brief description of this report.'});
+        res.status(400).send({successful: false,
+            text: 'Please provide a reason/description for flagging this listing.'});
     } else {
         new ListingFlag({
             description: description,
@@ -23,9 +24,9 @@ exports.flagListing = function(req, res, next) {
 
     }).save(function(err) {
             if (err) {
-                res.status(500).send({successful: false, text: 'Failed to flag listing:.'});
+                res.status(500).send({successful: false, text: 'Failed to flag the listing, ' + listing.name + '.'});
             } else {
-                res.status(200).send({successful: true, text: 'Listing has been flagged'});
+                res.status(200).send({successful: true, text: 'The listing, ' + listing.name + ' has been flagged.'});
             }
         });
     }

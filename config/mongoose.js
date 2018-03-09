@@ -8,6 +8,6 @@ module.exports = function() {
     require('../app/models/password-reset-token.model');
     require('../app/models/listing.model');
     require('../app/models/ticket.model');
-    require('../app/models/listing-flag.model.js');
+    require('../app/models/listing-flag.model');
     return db;
 };
