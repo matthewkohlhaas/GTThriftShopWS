@@ -44,7 +44,7 @@ exports.createListing = function(req, res, next) {
 };
 
 exports.getById = function(req, res, next) {
-    Listing.findOne({_id: req.params.listing}, function (err, listing) {
+    Listing.findOne({_id: req.params.id}, function (err, listing) {
         if (err) {
             res.status(500).send({successful: false, text: err.message});
         } else if (!listing) {
@@ -62,11 +62,22 @@ exports.editListing = function (req, res, next) {
             res.status(500).send({successful: false, text: err.message});
         } else if (!listing) {
             res.status(400).send({successful: false, text: 'Can not find listing :/'});
+        } else if (String(authentication.getUserFromToken(req)._id) !== String(listing.user._id)) {
+            res.status(401).send({successful: false, text: 'Unauthorized to edit this listing'});
         } else {
-            listing.name = req.body.name;
-            listing.description = req.body.description;
-            listing.price = req.body.price;
-            listing.imageUrl = req.body.imageUrl;
+            if (req.body.name) {
+                listing.name = req.body.name;
+            }
+            if (req.body.description) {
+                listing.description = req.body.description;
+            }
+            if (req.body.price) {
+                listing.price = req.body.price;
+            }
+            if (req.body.imageUrl) {
+                listing.imageUrl = req.body.imageUrl;
+            }
+
             listing.save(function (err) {
                 if (err) {
                     res.status(500).send({successful: false, text: err.message});

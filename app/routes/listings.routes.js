@@ -2,7 +2,7 @@ var listings = require('../controllers/listings.controller');
 var auth = require('../utils/auth-middleware.utils');
 
 module.exports = function (app) {
-    app.route('/listings/:listing')
+    app.route('/listings/:id')
         .get(
             auth.authenticateTokenMiddleware,
             listings.getById
@@ -16,7 +16,7 @@ module.exports = function (app) {
             listings.createListing
         );
 
-    app.route('/edit-listing')
+    app.route('/listing/edit')
         .post(
             auth.authenticateTokenMiddleware,
             listings.editListing
