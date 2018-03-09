@@ -273,7 +273,9 @@ exports.authenticateToken = function (req, res) {
 
 exports.findUserByEmail = function (req, res, next) {
     User.findOne({ 'email': req.body.email }, function (err, user) {
-        if (err || !user) {
+        if (err) {
+            return res.status(500).send(err.message);
+        } else if (!user) {
             return res.status(400).send('Could not find user with given email.');
         }
         req.found_user = user;
@@ -360,20 +362,19 @@ exports.getUserFromId = function (req, res, next) {
 exports.getUserFromToken = function (req, res) {
     var user = AuthUtils.getUserFromToken(req);
     if (!user) {
-        return res.status(401).send('unauthorized');
+        res.status(401).send('unauthorized');
     } else {
         User.findById(user._id, function (err, user) {
             if (err) {
-                return res.status(500).send(err.message);
+                res.status(500).send(err.message);
             } else if (!user) {
-                return res.status(400).send('Could not find user.');
+                res.status(400).send('Could not find user.');
+            } else {
+                res.status(200).json(user);
             }
-            return res.status(200).json(user);
         });
     }
 };
-
-
 
 exports.updateFirstName = function (req, res) {
     var firstName = (req.body.firstName) ? req.body.firstName.trim() : '';
