@@ -1,5 +1,5 @@
 var arrayContains = require('array-contains');
-var stableSort = require("stable");
+var stableSort = require('stable');
 
 const ATTRIBUTES = ['price', 'createdAt'];
 
@@ -32,8 +32,8 @@ exports.addSortToQuery = function (query, req) {
         return;
     }
     var direction = getDirection(req);
-    var sort_param = [attribute, direction];
-    query.sort([sort_param]);
+    var sortParam = [attribute, direction];
+    query.sort([sortParam]);
 };
 
 var ratingDescendingComparator = function (a, b) {
