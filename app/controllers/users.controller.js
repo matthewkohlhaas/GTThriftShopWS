@@ -1,25 +1,13 @@
 var jwt = require('jsonwebtoken');
-var crypto = require('crypto');
-var nodemailer = require('nodemailer');
 var config = require('../../config/config');
-var AuthUtils = require('../utils/authentication.utils');
 var User = require('../models/user.model');
 var VerificationToken = require('../models/verification-token.model');
+var PasswordResetToken = require('../models/password-reset-token.model');
+var AuthUtils = require('../utils/authentication.utils');
+var EmailUtils = require('../utils/email.utils');
 
-const EMAIL_REGEX = new RegExp('^(?:[a-zA-Z0-9!#$%&\'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&\'*+/=?^_`{|}~-]+)*|"(?:['
-    + '\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@gatech.edu$');
 const MIN_PASSWORD_LENGTH = 8;
 const TOKEN_EXPIRATION_TIME = '7 days';
-const TRANSPORTER = {
-    service: 'gmail',
-    auth: {
-        user: config.emailUsername,
-        pass: config.emailPassword
-    }
-};
-
-const EMAIL_FROM = config.emailUsername;
-const EMAIL_VERIFY_SUBJECT = 'Verify Your GT ThriftShop Account';
 
 exports.createAccount = function (req, res) {
     var email = (req.body.email) ? req.body.email.trim().toLowerCase() : '';
@@ -29,7 +17,7 @@ exports.createAccount = function (req, res) {
     var profileBio = (req.body.profileBio) ? req.body.profileBio.trim() : '';
     var profilePictureUrl = (req.body.profilePictureUrl) ? req.body.profilePictureUrl.trim() : '';
 
-    if (!EMAIL_REGEX.test(email)) {
+    if (!EmailUtils.validateEmail(email)) {
         res.status(400).send({successful: false, text: 'Please provide a valid Georgia Tech email address'});
 
     } else if (password.length < MIN_PASSWORD_LENGTH) {
@@ -56,30 +44,15 @@ exports.createAccount = function (req, res) {
                 res.status(400).send({successful: false, text: 'The email address, ' +  user.email
                     + ' is already associated with another account.'});
             } else {
-                const failureMessage = 'Your account was created, however we could not send a verification email.';
+                const errorMessage = 'Your account was created, however we could not send a verification email.';
 
-                var token = new VerificationToken({user: user._id, token: crypto.randomBytes(16).toString('hex')});
+                var token = new VerificationToken({user: user._id});
 
                 token.save(function (err) {
                     if (err) {
-                        res.status(500).send({successful: true, text: failureMessage});
+                        res.status(500).send({successful: true, text: errorMessage});
                     } else {
-                        nodemailer.createTransport(TRANSPORTER).sendMail({
-                            from: EMAIL_FROM,
-                            to: user.email,
-                            subject: EMAIL_VERIFY_SUBJECT,
-                            text: 'Hello ' + user.firstName + ' ' + user.lastName + ',\n\nPlease verify your GT '
-                            + 'ThriftShop account by clicking the link:\nhttp:\/\/' + config.uiUrl + '\/verify/'
-                            + token.token
-                        }, function (err) {
-                            if (err) {
-                                res.status(503).send({successful: true, text: failureMessage});
-                            } else {
-                                res.status(200).send({successful: true, text: 'Check your email for a link to verify '
-                                    + 'your account.'
-                                });
-                            }
-                        });
+                        sendVerificationEmail(user, token, errorMessage, true, res);
                     }
                 });
             }
@@ -87,10 +60,10 @@ exports.createAccount = function (req, res) {
     }
 };
 
-exports.resendVerification = function (req, res, next) {
+exports.resendVerificationEmail = function (req, res, next) {
     var email = (req.body.email) ? req.body.email.trim().toLowerCase() : '';
 
-    if (!EMAIL_REGEX.test(email)) {
+    if (!EmailUtils.validateEmail(email)) {
         res.status(400).send({successful: false, text: 'Please provide a valid Georgia Tech email address'});
 
     } else {
@@ -104,35 +77,36 @@ exports.resendVerification = function (req, res, next) {
                 res.status(400).send({successful: false, text: 'The account associated with that email address has '
                     + 'already been verified.'});
             } else {
-                var token = new VerificationToken({user: user._id, token: crypto.randomBytes(16).toString('hex')});
+                var token = new VerificationToken({user: user._id});
 
                 token.save(function (err) {
                     if (err) {
                         res.status(500).send({successful: false, text: err.message});
                     } else {
-                        nodemailer.createTransport(TRANSPORTER).sendMail({
-                            from: EMAIL_FROM,
-                            to: user.email,
-                            subject: EMAIL_VERIFY_SUBJECT,
-                            text: 'Hello ' + user.firstName + ' ' + user.lastName + ',\n\nPlease verify your GT '
-                            + 'ThriftShop account by clicking the link:\nhttp:\/\/' + config.uiUrl + '\/verify/'
-                            + token.token
-                        }, function (err) {
-                            if (err) {
-                                res.status(503).send({successful: false, text: 'Our email service failed to send a '
-                                    + 'verification email.'});
-                            } else {
-                                res.status(200).send({successful: true, text: 'Check your email for a link to verify '
-                                    + 'your account.'
-                                });
-                            }
-                        });
+                        const errorMessage = 'Our email service failed to send a verification email.';
+
+                        sendVerificationEmail(user, token, errorMessage, false, res);
                     }
                 });
             }
         });
     }
 };
+
+function sendVerificationEmail(user, token, errorMessage, successfulOnErr, res) {
+    const emailSubject = 'Verify Your GT ThriftShop Account';
+
+    const emailText = 'Hello ' + user.firstName + ' ' + user.lastName + ',\n\nPlease verify your GT ThriftShop account '
+        + 'by clicking the link:\nhttp:\/\/' + config.uiUrl + '\/verify/' + token.token;
+
+    const successMessage = 'Check your email for a link to verify your account.';
+
+    EmailUtils.sendEmail(user.email, emailSubject, emailText, function () {
+        res.status(200).send({successful: true, text: successMessage});
+    }, function (err) {
+        res.status(503).send({successful: successfulOnErr, text: errorMessage});
+    });
+}
 
 exports.verifyUser = function (req, res, next) {
     VerificationToken.findOne({token: req.params.token}, function (err, token) {
@@ -166,10 +140,97 @@ exports.verifyUser = function (req, res, next) {
     })
 };
 
+exports.sendPasswordResetEmail = function (req, res, next) {
+    var email = (req.body.email) ? req.body.email.trim().toLowerCase() : '';
+
+    if (!EmailUtils.validateEmail(email)) {
+        res.status(400).send({successful: false, text: 'Please provide a valid Georgia Tech email address'});
+
+    } else {
+        User.findOne({email: email}, function (err, user) {
+            if (err) {
+                res.status(500).send({successful: false, text: err.message});
+            } else if (!user) {
+                res.status(400).send({successful: false, text: 'We were unable to find an account associated with that '
+                    + 'email address.' });
+            } else {
+                var token = new PasswordResetToken({user: user._id});
+
+                token.save(function (err) {
+                    if (err) {
+                        res.status(500).send({successful: false, text: err.message});
+                    } else {
+
+                        const emailSubject = 'Reset Your GT ThriftShop Password';
+
+                        const emailText = 'Hello ' + user.firstName + ' ' + user.lastName + ',\n\nYou can reset your '
+                            + 'GT ThriftShop password at the following link:\nhttp:\/\/' + config.uiUrl
+                            + '\/reset-password/' + token.token;
+
+                        EmailUtils.sendEmail(user.email, emailSubject, emailText, function () {
+                            res.status(200).send({successful: true, text: 'Check your email for a link to reset '
+                                + 'your password.'});
+                        }, function (err) {
+                            res.status(503).send({successful: false, text: 'Our email service failed to send a '
+                                + 'password reset email.'});
+                        });
+                    }
+                });
+            }
+        });
+    }
+};
+
+exports.resetPassword = function (req, res, next) {
+    var password = (req.body.password) ? req.body.password.trim().toLowerCase() : '';
+
+    if (password.length < MIN_PASSWORD_LENGTH) {
+        res.status(400).send({successful: false, text: 'Please provide a password that is at least 6 characters long.'
+        });
+    } else {
+        PasswordResetToken.findOne({token: req.body.token}, function (err, token) {
+            if (err) {
+                res.status(500).send({successful: false, text: err.message});
+            } else if (!token) {
+                res.status(400).send({successful: false, text: 'We are unable to reset your password. This password '
+                    + 'reset link may have expired.'})
+            } else {
+                User.findOne({_id: token.user}, function (err, user) {
+                    if (err) {
+                        res.status(500).send({successful: false, text: err.message});
+                    } else if (!user) {
+                        res.status(400).send({successful: false, text: 'We were unable to find an account associated '
+                            + 'with this password reset link.'})
+                    } else {
+                        user.password = password;
+                        user.isVerified = true; // user is verified since they used their email to reset their password
+                        user.save(function (err) {
+                            if (err) {
+                                res.status(500).send({successful: false, text: err.message});
+                            } else {
+                                PasswordResetToken.remove({token: token.token}, function (err) {
+                                    if (err) {
+                                        res.status(500).send({successful: false, text: err.message});
+                                    } else {
+                                        res.status(200).send({successful: true, text: 'Your password has been '
+                                            + 'successfully changed! You may now log in with your new password.'});
+                                    }
+                                });
+                            }
+                        });
+                    }
+                })
+            }
+        })
+    }
+};
+
 exports.login = function (req, res) {
     var failureMsg = 'The email or password you provided was incorrect.';
 
-    User.findOne({email: req.body.email.toLowerCase()})
+    var email = (req.body.email) ? req.body.email.trim().toLowerCase() : '';
+
+    User.findOne({email: email})
         .select('+password')
         .exec(function (err, user) {
             if (err) {
@@ -239,20 +300,13 @@ exports.unbanUser = function (req, res, next) {
     updateUserBan(req.found_user, false, 'Failed to unban user.', next);
 };
 
-function emailUserAboutBan (email_address, subject, text, error_message, success_message, res) {
-    nodemailer.createTransport(TRANSPORTER).sendMail({
-        from: EMAIL_FROM,
-        to: email_address,
-        subject: subject,
-        text: text
+function emailUserAboutBan (email_address, subject, text, errorMessage, successMessage, res) {
+    EmailUtils.sendEmail(email_address, subject, text, function () {
+        return res.status(200).send({text: successMessage});
     }, function (err) {
-        if (err) {
-            return res.status(503).send(error_message);
-        } else {
-            return res.status(200).send({text: success_message});
-        }
+        return res.status(503).send(errorMessage);
     });
-};
+}
 
 exports.emailBannedUser = function (req, res) {
     var email_address = req.found_user.email;
@@ -291,7 +345,7 @@ exports.isUserBanned = function (req, res, next) {
     });
 };
 
-exports.getCurrentUser = function (req, res) {
+exports.getUserFromToken = function (req, res) {
     var user = AuthUtils.getUserFromToken(req);
     if (!user) {
         return res.status(401).send('unauthorized');
