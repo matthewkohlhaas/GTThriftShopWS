@@ -5,12 +5,12 @@ var auth = require('../utils/auth-middleware.utils');
 module.exports = function (app) {
     app.post('/users', users.createAccount);
 
+    app.get('/users/from-token', users.getUserFromToken);
+
     app.get('/users/:id',
         auth.authenticateTokenMiddleware,
         users.getUserFromId
     );
-
-    app.get('/users/from-token', users.getUserFromToken);
   
     app.post('/user/update-first-name', users.updateFirstName);
 
