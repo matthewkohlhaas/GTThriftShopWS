@@ -8,6 +8,14 @@ module.exports = function (app) {
     // TODO add a PUT at this route to update currently logged in user
     // So, you change it to app.route('/users/from-token').get(users.getUserFromToken).put(users.someFunctionName);
     app.get('/users/from-token', users.getUserFromToken);
+  
+    app.put('/users/from-token/first-name', users.updateFirstName);
+
+    app.put('/users/from-token/last-name', users.updateLastName);
+
+    app.put('/users/from-token/profile-picture-url', users.updateProfilePictureUrl);
+
+    app.put('/users/from-token/profile-bio', users.updateProfileBio);
 
     // TODO use this route later
     // app.get('/users/:email', users.getUserByEmail);
