@@ -1,14 +1,23 @@
 var authentication = require('../utils/authentication.utils');
 var Listing = require('../models/listing.model');
+var listUtils = require('../utils/listings.utils');
 
 exports.list = function (req, res, next) {
-    Listing.find({}, function (err, listings) {
+    var query = Listing.find({}).populate('user');
+    listUtils.addSortToQuery(query, req);
+    query.exec(function (err, listings) {
         if (err) {
-            return next(err);
+            return res.status(500).send(err.message);
         } else {
-            res.json(listings);
+            req.listings = listings;
+            next();
         }
-    }).populate('user');
+    });
+};
+
+exports.postProcessListings = function (req, res) {
+    listUtils.postProcessSort(req);
+    return res.status(200).send(req.listings);
 };
 
 exports.createListing = function(req, res, next) {
@@ -44,7 +53,7 @@ exports.createListing = function(req, res, next) {
 };
 
 exports.getById = function(req, res, next) {
-    Listing.findOne({_id: req.params.listing}, function (err, listing) {
+    Listing.findOne({_id: req.params.id}, function (err, listing) {
         if (err) {
             res.status(500).send({successful: false, text: err.message});
         } else if (!listing) {
@@ -57,26 +66,35 @@ exports.getById = function(req, res, next) {
 
 
 exports.editListing = function (req, res, next) {
-    Listing.findOne({_id: req.body.listing}, function (err, listing) {
+    Listing.findOne({_id: req.params.id}, function (err, listing) {
         if (err) {
             res.status(500).send({successful: false, text: err.message});
         } else if (!listing) {
-            res.status(400).send({successful: false, text: 'Can not find listing :/'});
+            res.status(400).send({successful: false, text: 'Cannot find listing :/'});
+        } else if (authentication.getUserFromToken(req)._id !== String(listing.user)) {
+            res.status(403).send({successful: false, text: 'You are unauthorized to edit this listing.'});
         } else {
-            listing.name = req.body.name;
-            listing.description = req.body.description;
-            listing.price = req.body.price;
-            listing.imageUrl = req.body.imageUrl;
+            if (req.body.name) {
+                listing.name = req.body.name;
+            }
+            if (req.body.description) {
+                listing.description = req.body.description;
+            }
+            if (req.body.price) {
+                listing.price = req.body.price;
+            }
+            if (req.body.imageUrl) {
+                listing.imageUrl = req.body.imageUrl;
+            }
             listing.save(function (err) {
                 if (err) {
                     res.status(500).send({successful: false, text: err.message});
                 } else {
-                    res.status(200).send({successful: true, text: 'Edited Succesfully!'});
+                    res.status(200).send({successful: true, text: 'Successfully edited listing!'});
                 }
             });
         }
-    }).populate('user');
-
+    });
 };
 
 

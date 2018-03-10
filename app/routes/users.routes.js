@@ -12,13 +12,13 @@ module.exports = function (app) {
         users.getUserFromId
     );
   
-    app.post('/user/update-first-name', users.updateFirstName);
+    app.put('/users/from-token/first-name', users.updateFirstName);
 
-    app.post('/user/update-last-name', users.updateLastName);
+    app.put('/users/from-token/last-name', users.updateLastName);
 
-    app.post('/user/update-profile-picture-url', users.updateProfilePictureUrl);
+    app.put('/users/from-token/profile-picture-url', users.updateProfilePictureUrl);
 
-    app.post('/user/update-profile-bio', users.updateProfileBio);
+    app.put('/users/from-token/profile-bio', users.updateProfileBio);
 
     app.post('/users/send-verification', users.resendVerificationEmail);
 
