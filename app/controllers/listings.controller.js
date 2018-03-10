@@ -61,8 +61,8 @@ exports.editListing = function (req, res, next) {
         if (err) {
             res.status(500).send({successful: false, text: err.message});
         } else if (!listing) {
-        } else if (String(authentication.getUserFromToken(req)._id) !== String(listing.user._id)) {
             res.status(400).send({successful: false, text: 'Cannot find listing :/'});
+        } else if (authentication.getUserFromToken(req)._id !== String(listing.user)) {
             res.status(403).send({successful: false, text: 'You are unauthorized to edit this listing.'});
         } else {
             if (req.body.name) {
@@ -85,8 +85,7 @@ exports.editListing = function (req, res, next) {
                 }
             });
         }
-    }).populate('user');
-
+    });
 };
 
 
