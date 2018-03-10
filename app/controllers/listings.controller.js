@@ -57,7 +57,7 @@ exports.getById = function(req, res, next) {
 
 
 exports.editListing = function (req, res, next) {
-    Listing.findOne({_id: req.body.listing}, function (err, listing) {
+    Listing.findOne({_id: req.params.id}, function (err, listing) {
         if (err) {
             res.status(500).send({successful: false, text: err.message});
         } else if (!listing) {

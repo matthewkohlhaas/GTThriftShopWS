@@ -6,6 +6,9 @@ module.exports = function (app) {
         .get(
             auth.authenticateTokenMiddleware,
             listings.getById
+        ).put(
+            auth.authenticateTokenMiddleware,
+            listings.editListing
         );
 
     app.route('/listings')
@@ -14,11 +17,5 @@ module.exports = function (app) {
             listings.list
         ).post(
             listings.createListing
-        );
-
-    app.route('/listing/edit')
-        .post(
-            auth.authenticateTokenMiddleware,
-            listings.editListing
         );
 };
