@@ -7,9 +7,9 @@ var Listing = require('../models/listing.model');
 exports.findMessages = function (req, res) {
     var query = Message.find({
         $and: [
-            {listing: req.listing_id},
-            {$or: [{sendingUser: req.first_user_id}, {sendingUser: req.second_user_id}]},
-            {$or: [{receivingUser: req.first_user_id}, {receivingUser: req.second_user_id}]}
+            {listing: req.params.listing_id},
+            {$or: [{sendingUser: req.params.first_user_id}, {sendingUser: req.params.second_user_id}]},
+            {$or: [{receivingUser: req.params.first_user_id}, {receivingUser: req.params.second_user_id}]}
         ]
     });
     query.populate('sendingUser').populate('receivingUser').populate('listing');
@@ -24,7 +24,10 @@ exports.findMessages = function (req, res) {
 };
 
 exports.validateListing = function (req, res, next) {
-    Listing.findOne({listing: req.listing}, function(err, listing) {
+    if (!req.body.listing) {
+        return res.status(400).send('Listing not given.');
+    }
+    Listing.findOne({_id: req.body.listing}, function(err, listing) {
         if (err) {
             return res.status(500).send(err.message);
         }
@@ -39,12 +42,15 @@ exports.validateListing = function (req, res, next) {
 
 exports.setSendingUser = function (req, res, next) {
     var user = authentication.getUserFromToken(req);
-    req.sendingUser = user._id;
+    req.body.sendingUser = user._id;
     next();
 };
 
 exports.validateReceiver = function (req, res, next) {
-    User.findOne({user: req.receivingUser}, function(err, user) {
+    if (!req.body.receivingUser) {
+        return res.status(400).send('Receiving user not given.');
+    }
+    User.findOne({_id: req.body.receivingUser}, function(err, user) {
         if (err) {
             return res.status(500).send(err.message);
         }
@@ -58,24 +64,24 @@ exports.validateReceiver = function (req, res, next) {
 };
 
 exports.validateMessage = function (req, res, next) {
-    if (!req.message || req.message === '') {
-        return res.status(400).send('No message.');
+    if (!req.body.message || req.body.message === '') {
+        return res.status(400).send('No message given.');
     }
     next();
 };
 
 exports.createMessage = function(req, res) {
     var newMessage = new Message({
-        listing: req.listing,
-        sendingUser: req.sendingUser,
-        receivingUser: req.receivingUser,
-        message: req.message
+        listing: req.body.listing,
+        sendingUser: req.body.sendingUser,
+        receivingUser: req.body.receivingUser,
+        message: req.body.message
     });
     newMessage.save(function(err) {
         if (err) {
             res.status(500).send(err.message);
         } else {
-            res.status(200);
+            res.status(201);
         }
     });
 };
