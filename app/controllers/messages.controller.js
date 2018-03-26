@@ -38,7 +38,7 @@ exports.validateListing = function (req, res, next) {
 };
 
 exports.setSendingUser = function (req, res, next) {
-    var user = AuthUtils.getUserFromToken(req);
+    var user = authentication.getUserFromToken(req);
     req.sendingUser = user.id;
 };
 
