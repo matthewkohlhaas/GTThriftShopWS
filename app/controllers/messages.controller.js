@@ -13,7 +13,7 @@ exports.findMessages = function (req, res) {
         ]
     });
     query.populate('sendingUser').populate('receivingUser').populate('listing');
-    query.sort(['createdAt', 'ascending']);
+    query.sort([['createdAt', 'ascending']]);
     query.exec(function (err, messages) {
         if (err) {
             res.status(500).send(err.message);
