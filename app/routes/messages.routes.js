@@ -8,7 +8,11 @@ module.exports = function (app) {
     );
 
     app.post('/messages',
-        // auth.authenticateTokenMiddleware,
-        // do something
+        auth.authenticateTokenMiddleware,
+        messages.validateListing,
+        messages.setSendingUser,
+        messages.validateReceiver,
+        messages.validateMessage,
+        messages.createMessage
     );
 };
