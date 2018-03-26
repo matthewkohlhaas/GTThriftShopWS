@@ -39,7 +39,8 @@ exports.validateListing = function (req, res, next) {
 
 exports.setSendingUser = function (req, res, next) {
     var user = authentication.getUserFromToken(req);
-    req.sendingUser = user.id;
+    req.sendingUser = user._id;
+    next();
 };
 
 exports.validateReceiver = function (req, res, next) {
