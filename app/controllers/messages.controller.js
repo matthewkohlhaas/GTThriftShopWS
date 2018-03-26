@@ -61,6 +61,7 @@ exports.validateMessage = function (req, res, next) {
     if (!req.message || req.message === '') {
         return res.status(400).send('No message.');
     }
+    next();
 };
 
 exports.createMessage = function(req, res) {
