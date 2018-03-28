@@ -6,12 +6,16 @@ module.exports = function (app) {
         .get(
             auth.authenticateTokenMiddleware,
             listings.getById
+        ).put(
+            auth.authenticateTokenMiddleware,
+            listings.editListing
         );
 
     app.route('/listings')
         .get(
             auth.authenticateTokenMiddleware,
-            listings.list
+            listings.list,
+            listings.postProcessListings
         ).post(
             listings.createListing
         );
