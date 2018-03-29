@@ -5,7 +5,7 @@ const ATTRIBUTES = ['price', 'createdAt'];
 
 exports.getListingsFindOptions = function (req) {
     const searchString = req.query['search'];
-    if (searchString && searchString !== "" && searchString !== "\"\"") {
+    if (searchString && searchString !== '' && searchString !== '""') {
         return {$text: {$search: searchString}};
     }
     return {};
