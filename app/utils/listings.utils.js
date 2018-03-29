@@ -3,6 +3,14 @@ var stableSort = require('stable');
 
 const ATTRIBUTES = ['price', 'createdAt'];
 
+exports.getListingsFindOptions = function (req) {
+    const searchTerm = req.query['search'];
+    if (searchTerm && searchTerm !== "" && searchTerm !== "\"\"") {
+        return {$text: {$search: searchTerm}};
+    }
+    return {};
+};
+
 var getAttribute = function (req) {
     var attribute = req.query['sort'];
     if (arrayContains(ATTRIBUTES, attribute)) {

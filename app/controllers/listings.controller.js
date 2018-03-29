@@ -3,8 +3,11 @@ var Listing = require('../models/listing.model');
 var listUtils = require('../utils/listings.utils');
 
 exports.list = function (req, res, next) {
-    var query = Listing.find({}).populate('user');
+    const findOptions = listUtils.getListingsFindOptions(req);
+    const query = Listing.find(findOptions).populate('user');
+
     listUtils.addSortToQuery(query, req);
+
     query.exec(function (err, listings) {
         if (err) {
             return res.status(500).send(err.message);
@@ -13,6 +16,15 @@ exports.list = function (req, res, next) {
             next();
         }
     });
+};
+
+const getListings = function (req) {
+    const searchTerm = req.query['search'];
+    var findOptions = {};
+    if (searchTerm) {
+        findOptions = {$text: {$search: searchTerm}};
+    }
+    return Listing.find(findOptions).populate('user');
 };
 
 exports.postProcessListings = function (req, res) {

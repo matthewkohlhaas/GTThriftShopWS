@@ -26,4 +26,6 @@ ListingSchema.virtual('userRating').get(function() {
 ListingSchema.set('toObject', { virtuals: true });
 ListingSchema.set('toJSON', { virtuals: true });
 
+ListingSchema.index({name: 'text', description: 'text'});
+
 module.exports = mongoose.model('Listing', ListingSchema);
