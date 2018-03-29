@@ -81,7 +81,7 @@ exports.createMessage = function(req, res) {
         if (err) {
             res.status(500).send(err.message);
         } else {
-            res.status(201);
+            res.status(201).send('Message Successfully Created');
         }
     });
 };
