@@ -44,7 +44,11 @@ var UserSchema = new Schema({
     isBanned: {
         type: Boolean,
         default: false
-    }
+    },
+
+    blockedProfiles: [{ type : mongoose.Schema.Types.ObjectId
+        , ref: 'User' }]
+
 });
 
 UserSchema.pre('save', function (next) {

@@ -22,7 +22,7 @@ exports.flagListing = function(req, res, next) {
             listing: listing._id,
             user: user._id
 
-    }).save(function(err) {
+        }).save(function(err) {
             if (err) {
                 res.status(500).send({successful: false, text: 'Failed to flag the listing, ' + listing.name + '.'});
             } else {

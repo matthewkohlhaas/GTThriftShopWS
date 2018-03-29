@@ -1,10 +1,13 @@
 var jwt = require('jsonwebtoken');
 var config = require('../../config/config');
 var User = require('../models/user.model');
+var ProfileBlock = require('../models/profile-block.model');
 var VerificationToken = require('../models/verification-token.model');
 var PasswordResetToken = require('../models/password-reset-token.model');
 var AuthUtils = require('../utils/authentication.utils');
 var EmailUtils = require('../utils/email.utils');
+
+
 
 const MIN_PASSWORD_LENGTH = 8;
 const TOKEN_EXPIRATION_TIME = '7 days';
@@ -37,7 +40,8 @@ exports.createAccount = function (req, res) {
             firstName: firstName,
             lastName: lastName,
             profileBio: profileBio,
-            profilePictureUrl: profilePictureUrl
+            profilePictureUrl: profilePictureUrl,
+            blockProfiles: []
         });
         user.save(function (err) {
             if (err) {
@@ -479,4 +483,45 @@ exports.updateProfileBio = function (req, res) {
         });
     }
 };
+
+exports.updateBlockProfile = function(req, res, next) {
+    var description = (req.body.description) ? req.body.description.trim() : '';
+    var blockedUser = req.body.blockedUser; //user who is being blocked
+    var user = AuthUtils.getUserFromToken(req); // user who blocked a profile
+
+    //authenticate
+    if (!user) {
+        res.status(401).send('Unauthorized');
+    } else if (!blockedUser) {
+        res.status(400).send({successful: false,
+            text: 'User you are trying to block does not exist.'});
+    } else if (description === '') {
+        res.status(400).send({successful: false,
+            text: 'Please provide a reason/description for blocking this user.'});
+    }  else {
+        User.findById(user._id, function(err, user) {
+            if (err) {
+                res.status(500).send({successful: false, text: err.message});
+            } else if (!user) {
+                res.status(400).send({successful: false, text: 'Could not find user.'})
+            } else {
+
+                // blockedProfile = new ProfileBlock({
+                //     description: description,
+                //     blockedUser: blockedUser._id});
+
+                user.blockedProfiles.push(blockedUser._id);
+                user.save(function(err) {
+                    if (err) {
+                        res.status(500).send({successful: false, text: err.message});
+                    } else {
+                        res.status(200).send({successful: true, text: 'You have successfully '
+                        + 'blocked ' + blockedUser.firstName + ' ' + blockedUser.lastName});
+                    }
+                });
+            }
+        });
+    }
+};
+
 

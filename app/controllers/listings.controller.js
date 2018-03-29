@@ -1,18 +1,44 @@
 var authentication = require('../utils/authentication.utils');
 var Listing = require('../models/listing.model');
 var listUtils = require('../utils/listings.utils');
+var ObjectId = require('mongodb').ObjectID;
+var User = require('../models/user.model');
 
 exports.list = function (req, res, next) {
-    var query = Listing.find({}).populate('user');
-    listUtils.addSortToQuery(query, req);
-    query.exec(function (err, listings) {
+    var user = authentication.getUserFromToken(req, res);
+    var blockedList = null;
+
+    User.findById(user._id, function(err, user) {
         if (err) {
-            return res.status(500).send(err.message);
+            res.status(500).send({successful: false, text: err.message});
+        } else if (!user) {
+            res.status(400).send({successful: false, text: 'Could not find user.'})
         } else {
-            req.listings = listings;
-            next();
+            blockedList = user.blockedProfiles;
+
+            //exclude blocked user's listing.
+            var query = Listing.find({
+                user: {$nin: blockedList}
+
+            }).populate('user');
+            listUtils.addSortToQuery(query, req);
+            query.exec(function (err, listings) {
+                if (err) {
+                    return res.status(500).send(err.message);
+                } else {
+                    req.listings = listings;
+                    next();
+                }
+            });
         }
     });
+
+    temp = [
+        ObjectId('5a53f87e915ae029d4d48b83'),
+        ObjectId('5a4fc64b97f7f51b24efaff9'),
+        ObjectId('5a53f8eb915ae029d4d48b84')]
+    // console.log("============" + temp);
+
 };
 
 exports.postProcessListings = function (req, res) {
