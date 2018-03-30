@@ -14,6 +14,7 @@ module.exports = function (app) {
         messages.setSendingUser,
         messages.validateReceiver,
         messages.validateMessage,
+        messages.verifyListingOwner,
         messages.createMessage
     );
 };

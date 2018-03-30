@@ -36,7 +36,8 @@ exports.validateListing = function (req, res, next) {
     if (!req.body.listing) {
         return res.status(400).send('Listing not given.');
     }
-    Listing.findOne({_id: req.body.listing}, function(err, listing) {
+    var query = Listing.findOne({_id: req.body.listing}).populate('user');
+    query.exec(function(err, listing) {
         if (err) {
             return res.status(500).send(err.message);
         }
@@ -44,6 +45,7 @@ exports.validateListing = function (req, res, next) {
             return res.status(400).send('Could not find listing.');
         }
         else {
+            req.body.listingUserId = listing.user.id;
             next();
         }
     });
@@ -77,6 +79,15 @@ exports.validateMessage = function (req, res, next) {
         return res.status(400).send('No message given.');
     }
     next();
+};
+
+exports.verifyListingOwner = function(req, res, next) {
+    if (req.body.listingUserId === req.body.sendingUser || req.body.listingUserId === req.body.receivingUser) {
+        next();
+    }
+    else {
+        res.status(403).send('forbidden');
+    }
 };
 
 exports.createMessage = function(req, res) {
