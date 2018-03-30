@@ -485,7 +485,7 @@ exports.updateProfileBio = function (req, res) {
 };
 
 exports.updateBlockProfile = function(req, res, next) {
-    var description = (req.body.description) ? req.body.description.trim() : '';
+    //var description = (req.body.description) ? req.body.description.trim() : '';
     var blockedUser = req.body.blockedUser; //user who is being blocked
     var user = AuthUtils.getUserFromToken(req); // user who blocked a profile
 
@@ -506,6 +506,7 @@ exports.updateBlockProfile = function(req, res, next) {
                 res.status(400).send({successful: false, text: 'Could not find user.'})
             } else {
 
+                // Not sending description anymore
                 // blockedProfile = new ProfileBlock({
                 //     description: description,
                 //     blockedUser: blockedUser._id});

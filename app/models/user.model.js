@@ -46,6 +46,11 @@ var UserSchema = new Schema({
         default: false
     },
 
+    // Originally I have this as an array of object.
+    // However I thought this would make more sense this way
+    // since "description" is sort of useless if we don't flag user
+    // But "description" is collected in the front end, and could be use
+    // for that later story.
     blockedProfiles: [{ type : mongoose.Schema.Types.ObjectId
         , ref: 'User' }]
 

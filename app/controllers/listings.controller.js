@@ -33,12 +33,6 @@ exports.list = function (req, res, next) {
         }
     });
 
-    temp = [
-        ObjectId('5a53f87e915ae029d4d48b83'),
-        ObjectId('5a4fc64b97f7f51b24efaff9'),
-        ObjectId('5a53f8eb915ae029d4d48b84')]
-    // console.log("============" + temp);
-
 };
 
 exports.postProcessListings = function (req, res) {
