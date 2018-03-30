@@ -28,16 +28,16 @@ var isDescending = function (req) {
 };
 
 var getDirection = function (req) {
-    if (isDescending(req)) {
-        return 'descending';
+    if (isAscending(req)) {
+        return 'ascending';
     }
-    return 'ascending';
+    return 'descending';
 };
 
 exports.addSortToQuery = function (query, req) {
     var attribute = getAttribute(req);
     if (!attribute) {
-        return;
+        attribute = 'createdAt';
     }
     var direction = getDirection(req);
     var sortParam = [attribute, direction];
