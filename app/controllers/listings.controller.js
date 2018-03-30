@@ -18,15 +18,6 @@ exports.list = function (req, res, next) {
     });
 };
 
-const getListings = function (req) {
-    const searchTerm = req.query['search'];
-    var findOptions = {};
-    if (searchTerm) {
-        findOptions = {$text: {$search: searchTerm}};
-    }
-    return Listing.find(findOptions).populate('user');
-};
-
 exports.postProcessListings = function (req, res) {
     listUtils.postProcessSort(req);
     return res.status(200).send(req.listings);
