@@ -4,6 +4,15 @@ var User = require('../models/user.model');
 var Listing = require('../models/listing.model');
 
 
+exports.verifyUser = function (req, res, next) {
+    var user = authentication.getUserFromToken(req);
+    if (req.params.first_user_id === user._id || req.params.second_use_id === user._id) {
+        next();
+    } else {
+        res.status(403).send('forbidden');
+    }
+};
+
 exports.findMessages = function (req, res) {
     var query = Message.find({
         $and: [
