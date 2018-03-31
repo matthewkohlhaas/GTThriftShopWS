@@ -3,12 +3,16 @@ var stableSort = require('stable');
 
 const ATTRIBUTES = ['price', 'createdAt'];
 
-exports.getListingsFindOptions = function (req) {
+exports.generateListingsFindOptions = function (req, blockedUsers) {
+    const options = {};
+    if (blockedUsers) {
+        options['user'] = {$nin: blockedUsers};
+    }
     const searchString = req.query['search'];
     if (searchString && searchString !== '' && searchString !== '""') {
-        return {$text: {$search: searchString}};
+        options['$text'] = {$search: searchString};
     }
-    return {};
+    return options;
 };
 
 var getAttribute = function (req) {
