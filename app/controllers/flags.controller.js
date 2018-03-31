@@ -5,25 +5,25 @@ var ListingFlag = require('mongoose').model('ListingFlag');
 var UserFlag = require('mongoose').model('UserFlag');
 
 exports.flagListing = function(req, res, next) {
-    var listingId = req.body.listingId;
+    var id = req.body.listingId;
     var description = (req.body.description) ? req.body.description.trim() : '';
     var user = authentication.getUserFromToken(req);
 
     if (!user) {
         res.status(401).send('unauthorized');
-    } else if (!listingId) {
+    } else if (!id) {
         res.status(400).send({successful: false, text: 'Please provide a listing to flag.'});
     } else if (description === '') {
         res.status(400).send({successful: false,
             text: 'Please provide a reason for flagging this listing.'});
     } else {
-        Listing.findById(listingId, function (err, listing) {
+        Listing.findById(id, function (err, listing) {
             if (err || !listing) {
                 res.status(400).send({successful: false, text: 'Could not find the listing you wish to flag.'});
             } else {
                 new ListingFlag({
                     description: description,
-                    flaggedListing: listingId,
+                    flaggedListing: id,
                     user: user._id
 
                 }).save(function(err) {
@@ -41,25 +41,25 @@ exports.flagListing = function(req, res, next) {
 };
 
 exports.flagUser = function(req, res, next) {
-    var userId = req.body.userId;
+    var id = req.body.userId;
     var description = (req.body.description) ? req.body.description.trim() : '';
     var user = authentication.getUserFromToken(req);
 
     if (!user) {
         res.status(401).send('unauthorized');
-    } else if (!userId) {
+    } else if (!id) {
         res.status(400).send({successful: false, text: 'Please provide a user to flag.'});
     } else if (description === '') {
         res.status(400).send({successful: false,
             text: 'Please provide a reason for flagging this user.'});
     } else {
-        User.findById(userId, function (err, user) {
+        User.findById(id, function (err, user) {
             if (err || !user) {
                 res.status(400).send({successful: false, text: 'Could not find the user you wish to flag.'});
             } else {
                 new UserFlag({
                     description: description,
-                    flaggedUser: userId,
+                    flaggedUser: id,
                     user: user._id
 
                 }).save(function(err) {
