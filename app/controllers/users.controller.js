@@ -483,13 +483,13 @@ exports.updateProfileBio = function (req, res) {
 };
 
 exports.addBlockedUser = function(req, res, next) {
-    var blockedUser = req.body.blockedUser; //user who is being blocked
+    var userToBlock = req.body.user; //user who is being blocked
     var user = AuthUtils.getUserFromToken(req); // user who blocked a profile
 
     //authenticate
     if (!user) {
         res.status(401).send('Unauthorized');
-    } else if (!blockedUser) {
+    } else if (!userToBlock) {
         res.status(400).send({successful: false,
             text: 'Please provide a user to block'});
     } else if (description === '') {
@@ -502,13 +502,13 @@ exports.addBlockedUser = function(req, res, next) {
             } else if (!user) {
                 res.status(400).send({successful: false, text: 'Could not find user you wish to block.'})
             } else {
-                user.blockedUsers.push(blockedUser._id);
+                user.blockedUsers.push(userToBlock._id);
                 user.save(function(err) {
                     if (err) {
                         res.status(500).send({successful: false, text: err.message});
                     } else {
                         res.status(200).send({successful: true, text: 'You have successfully '
-                        + 'blocked ' + blockedUser.firstName + ' ' + blockedUser.lastName});
+                        + 'blocked ' + userToBlock.firstName + ' ' + userToBlock.lastName});
                     }
                 });
             }
