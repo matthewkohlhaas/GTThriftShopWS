@@ -4,6 +4,7 @@ var auth = require('../utils/auth-middleware.utils');
 module.exports = function (app) {
     app.get('/messages/:listing_id/:first_user_id/:second_user_id',
         auth.authenticateTokenMiddleware,
+        messages.verifyUser,
         messages.findMessages
     );
 
@@ -13,6 +14,7 @@ module.exports = function (app) {
         messages.setSendingUser,
         messages.validateReceiver,
         messages.validateMessage,
+        messages.verifyListingOwner,
         messages.createMessage
     );
 };
