@@ -5,7 +5,7 @@ var ListingFlag = require('mongoose').model('ListingFlag');
 var UserFlag = require('mongoose').model('UserFlag');
 
 exports.flagListing = function(req, res, next) {
-    var id = req.body.listingId;
+    var id = req.body.id;
     var reason = (req.body.reason) ? req.body.reason.trim() : '';
     var user = authentication.getUserFromToken(req);
 
@@ -13,7 +13,7 @@ exports.flagListing = function(req, res, next) {
         res.status(401).send('unauthorized');
     } else if (!id) {
         res.status(400).send({successful: false, text: 'Please provide a listing to flag.'});
-    } else if (reason === '') {
+    } else if (!reason || reason === '') {
         res.status(400).send({successful: false,
             text: 'Please provide a reason for flagging this listing.'});
     } else {
@@ -41,7 +41,7 @@ exports.flagListing = function(req, res, next) {
 };
 
 exports.flagUser = function(req, res, next) {
-    var id = req.body.userId;
+    var id = req.body.id;
     var reason = (req.body.reason) ? req.body.reason.trim() : '';
     var user = authentication.getUserFromToken(req);
 
@@ -49,7 +49,7 @@ exports.flagUser = function(req, res, next) {
         res.status(401).send('unauthorized');
     } else if (!id) {
         res.status(400).send({successful: false, text: 'Please provide a user to flag.'});
-    } else if (reason === '') {
+    } else if (!reason || reason === '') {
         res.status(400).send({successful: false,
             text: 'Please provide a reason for flagging this user.'});
     } else {
