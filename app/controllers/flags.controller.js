@@ -7,7 +7,7 @@ var User = require('mongoose').model('User');
 exports.flagListing = function(req, res, next) {
     var listing = req.body.listing;
     var description = (req.body.description) ? req.body.description.trim() : '';
-    var user = authentication.getUserFromToken(req); //user who flagged listing
+    var user = authentication.getUserFromToken(req);
 
     //authenticate
     if (!user) {
@@ -20,7 +20,7 @@ exports.flagListing = function(req, res, next) {
     } else {
         new ListingFlag({
             description: description,
-            listing: listing._id,
+            flaggedListing: listing._id,
             user: user._id
 
         }).save(function(err) {

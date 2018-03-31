@@ -6,13 +6,13 @@ var ListingFlagSchema = new Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: true,
+        required: true
     },
-    listing: {
+    flaggedListing: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Listing',
-        required: false,
-    },
+        required: false
+    }
 });
 
 module.exports = mongoose.model('ListingFlag', ListingFlagSchema);
