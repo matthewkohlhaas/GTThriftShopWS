@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-var ProfileBlockSchema = new Schema({
+var UserFlagSchema = new Schema({
     description: {
         type: String,
         required: false
@@ -10,7 +10,7 @@ var ProfileBlockSchema = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
-    },
+    }
 });
 
-module.exports = mongoose.model('ProfileBlock', ProfileBlockSchema);
+module.exports = mongoose.model('UserFlag', UserFlagSchema);
