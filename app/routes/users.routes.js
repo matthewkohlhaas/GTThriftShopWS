@@ -11,7 +11,8 @@ module.exports = function (app) {
         auth.authenticateTokenMiddleware,
         users.getUserFromId
     );
-    app.put('/users/from-token/block-profile', users.updateBlockProfile);
+
+    app.post('/users/from-token/blocked-profiles', users.addBlockedUser);
 
     app.put('/users/from-token/first-name', users.updateFirstName);
 

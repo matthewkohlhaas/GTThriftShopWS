@@ -1,13 +1,11 @@
 var jwt = require('jsonwebtoken');
 var config = require('../../config/config');
 var User = require('../models/user.model');
-var ProfileBlock = require('../models/profile-block.model');
+var UserFlag = require('../models/user-flag.model');
 var VerificationToken = require('../models/verification-token.model');
 var PasswordResetToken = require('../models/password-reset-token.model');
 var AuthUtils = require('../utils/authentication.utils');
 var EmailUtils = require('../utils/email.utils');
-
-
 
 const MIN_PASSWORD_LENGTH = 8;
 const TOKEN_EXPIRATION_TIME = '7 days';
@@ -484,8 +482,7 @@ exports.updateProfileBio = function (req, res) {
     }
 };
 
-exports.updateBlockProfile = function(req, res, next) {
-    //var description = (req.body.description) ? req.body.description.trim() : '';
+exports.addBlockedUser = function(req, res, next) {
     var blockedUser = req.body.blockedUser; //user who is being blocked
     var user = AuthUtils.getUserFromToken(req); // user who blocked a profile
 
@@ -494,7 +491,7 @@ exports.updateBlockProfile = function(req, res, next) {
         res.status(401).send('Unauthorized');
     } else if (!blockedUser) {
         res.status(400).send({successful: false,
-            text: 'User you are trying to block does not exist.'});
+            text: 'Please provide a user to block'});
     } else if (description === '') {
         res.status(400).send({successful: false,
             text: 'Please provide a reason/description for blocking this user.'});
@@ -503,15 +500,9 @@ exports.updateBlockProfile = function(req, res, next) {
             if (err) {
                 res.status(500).send({successful: false, text: err.message});
             } else if (!user) {
-                res.status(400).send({successful: false, text: 'Could not find user.'})
+                res.status(400).send({successful: false, text: 'Could not find user you wish to block.'})
             } else {
-
-                // Not sending description anymore
-                // blockedProfile = new ProfileBlock({
-                //     description: description,
-                //     blockedUser: blockedUser._id});
-
-                user.blockedProfiles.push(blockedUser._id);
+                user.blockedUsers.push(blockedUser._id);
                 user.save(function(err) {
                     if (err) {
                         res.status(500).send({successful: false, text: err.message});

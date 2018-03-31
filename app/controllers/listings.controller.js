@@ -14,7 +14,7 @@ exports.list = function (req, res, next) {
         } else if (!user) {
             res.status(400).send({successful: false, text: 'Could not find user.'})
         } else {
-            blockedList = user.blockedProfiles;
+            blockedList = user.blockedUsers;
 
             //exclude blocked user's listing.
             var query = Listing.find({
