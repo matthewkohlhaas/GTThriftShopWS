@@ -2,7 +2,6 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var UserFlagSchema = new Schema({
-    reason: String,
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
@@ -12,6 +11,10 @@ var UserFlagSchema = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
+    },
+    reason: {
+        type: String,
+        required: false
     }
 });
 

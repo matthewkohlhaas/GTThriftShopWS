@@ -2,7 +2,6 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var ListingFlagSchema = new Schema({
-    reason: String,
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
@@ -11,6 +10,10 @@ var ListingFlagSchema = new Schema({
     flaggedListing: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Listing',
+        required: false
+    },
+    reason: {
+        type: String,
         required: false
     }
 });

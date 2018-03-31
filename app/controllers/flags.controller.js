@@ -13,9 +13,6 @@ exports.flagListing = function(req, res, next) {
         res.status(401).send('unauthorized');
     } else if (!id) {
         res.status(400).send({successful: false, text: 'Please provide a listing to flag.'});
-    } else if (!reason || reason === '') {
-        res.status(400).send({successful: false,
-            text: 'Please provide a reason for flagging this listing.'});
     } else {
         Listing.findById(id, function (err, listing) {
             if (err || !listing) {
@@ -49,9 +46,6 @@ exports.flagUser = function(req, res, next) {
         res.status(401).send('unauthorized');
     } else if (!id) {
         res.status(400).send({successful: false, text: 'Please provide a user to flag.'});
-    } else if (!reason || reason === '') {
-        res.status(400).send({successful: false,
-            text: 'Please provide a reason for flagging this user.'});
     } else {
         User.findById(id, function (err, user) {
             if (err || !user) {
