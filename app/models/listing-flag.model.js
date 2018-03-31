@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var ListingFlagSchema = new Schema({
-    description: String,
+    reason: String,
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',

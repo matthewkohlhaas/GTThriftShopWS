@@ -6,14 +6,14 @@ var UserFlag = require('mongoose').model('UserFlag');
 
 exports.flagListing = function(req, res, next) {
     var id = req.body.listingId;
-    var description = (req.body.description) ? req.body.description.trim() : '';
+    var reason = (req.body.reason) ? req.body.reason.trim() : '';
     var user = authentication.getUserFromToken(req);
 
     if (!user) {
         res.status(401).send('unauthorized');
     } else if (!id) {
         res.status(400).send({successful: false, text: 'Please provide a listing to flag.'});
-    } else if (description === '') {
+    } else if (reason === '') {
         res.status(400).send({successful: false,
             text: 'Please provide a reason for flagging this listing.'});
     } else {
@@ -22,7 +22,7 @@ exports.flagListing = function(req, res, next) {
                 res.status(400).send({successful: false, text: 'Could not find the listing you wish to flag.'});
             } else {
                 new ListingFlag({
-                    description: description,
+                    reason: reason,
                     flaggedListing: id,
                     user: user._id
 
@@ -42,14 +42,14 @@ exports.flagListing = function(req, res, next) {
 
 exports.flagUser = function(req, res, next) {
     var id = req.body.userId;
-    var description = (req.body.description) ? req.body.description.trim() : '';
+    var reason = (req.body.reason) ? req.body.reason.trim() : '';
     var user = authentication.getUserFromToken(req);
 
     if (!user) {
         res.status(401).send('unauthorized');
     } else if (!id) {
         res.status(400).send({successful: false, text: 'Please provide a user to flag.'});
-    } else if (description === '') {
+    } else if (reason === '') {
         res.status(400).send({successful: false,
             text: 'Please provide a reason for flagging this user.'});
     } else {
@@ -58,7 +58,7 @@ exports.flagUser = function(req, res, next) {
                 res.status(400).send({successful: false, text: 'Could not find the user you wish to flag.'});
             } else {
                 new UserFlag({
-                    description: description,
+                    reason: reason,
                     flaggedUser: id,
                     user: user._id
 
