@@ -12,7 +12,7 @@ module.exports = function (app) {
         users.getUserFromId
     );
 
-    app.post('/users/from-token/blocked-profiles', users.addBlockedUser);
+    app.post('/users/from-token/blocked-users', users.addBlockedUser);
 
     app.put('/users/from-token/first-name', users.updateFirstName);
 
