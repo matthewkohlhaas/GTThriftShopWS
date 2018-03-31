@@ -28,6 +28,7 @@ module.exports = function() {
     require('../app/routes/flags.routes.js')(app);
     require('../app/routes/tickets.routes.js')(app);
     require('../app/routes/admins.routes.js')(app);
+    require('../app/routes/messages.routes.js')(app);
 
     app.use(express.static('./public'));
 

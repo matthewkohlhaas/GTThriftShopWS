@@ -5,23 +5,22 @@ var ObjectId = require('mongodb').ObjectID;
 var User = require('../models/user.model');
 
 exports.list = function (req, res, next) {
-    var user = authentication.getUserFromToken(req, res);
-    var blockedList = null;
+    const user = authentication.getUserFromToken(req, res);
 
-    User.findById(user._id, function(err, user) {
+    User.findById(user._id, function (err, user) {
         if (err) {
             res.status(500).send({successful: false, text: err.message});
-        } else if (!user) {
-            res.status(400).send({successful: false, text: 'Could not find user.'})
         } else {
-            blockedList = user.blockedUsers;
+            var blockedUsers = [];
+            if (user) {
+                blockedUsers = user.blockedUsers;
+            }
+            const findOptions = listUtils.generateListingsFindOptions(req, blockedUsers);
 
-            //exclude blocked user's listing.
-            var query = Listing.find({
-                user: {$nin: blockedList}
+            const query = Listing.find(findOptions).populate('user');
 
-            }).populate('user');
             listUtils.addSortToQuery(query, req);
+
             query.exec(function (err, listings) {
                 if (err) {
                     return res.status(500).send(err.message);
@@ -32,7 +31,6 @@ exports.list = function (req, res, next) {
             });
         }
     });
-
 };
 
 exports.postProcessListings = function (req, res) {
