@@ -39,12 +39,14 @@ module.exports = function (app) {
         admins.isAdminMiddleware,
         users.findUserByEmail,
         users.banUser,
-        users.emailBannedUser);
+        users.emailBannedUser
+    );
 
     app.post('/users/unban',
         auth.authenticateTokenMiddleware,
         admins.isAdminMiddleware,
         users.findUserByEmail,
         users.unbanUser,
-        users.emailUnbannedUser);
+        users.emailUnbannedUser
+    );
 };

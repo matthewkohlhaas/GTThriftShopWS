@@ -500,20 +500,18 @@ exports.addBlockedUser = function(req, res, next) {
             if (err) {
                 res.status(500).send({successful: false, text: err.message});
             } else if (!user) {
-                res.status(400).send({successful: false, text: 'Could not find user you wish to block.'})
+                res.status(400).send({successful: false, text: 'Could not find the user you wish to block.'})
             } else {
                 user.blockedUsers.push(userToBlock._id);
                 user.save(function(err) {
                     if (err) {
                         res.status(500).send({successful: false, text: err.message});
                     } else {
-                        res.status(200).send({successful: true, text: 'You have successfully '
-                        + 'blocked ' + userToBlock.firstName + ' ' + userToBlock.lastName});
+                        res.status(200).send({successful: true, text: 'You have successfully blocked '
+                            + userToBlock.firstName + ' ' + userToBlock.lastName});
                     }
                 });
             }
         });
     }
 };
-
-
