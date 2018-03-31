@@ -1,19 +1,34 @@
 var authentication = require('../utils/authentication.utils');
 var Listing = require('../models/listing.model');
 var listUtils = require('../utils/listings.utils');
+var ObjectId = require('mongodb').ObjectID;
+var User = require('../models/user.model');
 
 exports.list = function (req, res, next) {
-    const findOptions = listUtils.getListingsFindOptions(req);
-    const query = Listing.find(findOptions).populate('user');
+    const user = authentication.getUserFromToken(req, res);
 
-    listUtils.addSortToQuery(query, req);
-
-    query.exec(function (err, listings) {
+    User.findById(user._id, function (err, user) {
         if (err) {
-            return res.status(500).send(err.message);
+            res.status(500).send({successful: false, text: err.message});
         } else {
-            req.listings = listings;
-            next();
+            var blockedUsers = [];
+            if (user) {
+                blockedUsers = user.blockedUsers;
+            }
+            const findOptions = listUtils.generateListingsFindOptions(req, blockedUsers);
+
+            const query = Listing.find(findOptions).populate('user');
+
+            listUtils.addSortToQuery(query, req);
+
+            query.exec(function (err, listings) {
+                if (err) {
+                    return res.status(500).send(err.message);
+                } else {
+                    req.listings = listings;
+                    next();
+                }
+            });
         }
     });
 };

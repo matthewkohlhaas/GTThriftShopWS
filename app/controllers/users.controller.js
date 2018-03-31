@@ -1,6 +1,7 @@
 var jwt = require('jsonwebtoken');
 var config = require('../../config/config');
 var User = require('../models/user.model');
+var UserFlag = require('../models/user-flag.model');
 var VerificationToken = require('../models/verification-token.model');
 var PasswordResetToken = require('../models/password-reset-token.model');
 var AuthUtils = require('../utils/authentication.utils');
@@ -37,7 +38,8 @@ exports.createAccount = function (req, res) {
             firstName: firstName,
             lastName: lastName,
             profileBio: profileBio,
-            profilePictureUrl: profilePictureUrl
+            profilePictureUrl: profilePictureUrl,
+            blockProfiles: []
         });
         user.save(function (err) {
             if (err) {
@@ -480,3 +482,39 @@ exports.updateProfileBio = function (req, res) {
     }
 };
 
+exports.addBlockedUser = function(req, res, next) {
+    var id = req.body.id; //user who is being blocked
+    var user = AuthUtils.getUserFromToken(req); // user who blocked a profile
+
+    //authenticate
+    if (!user) {
+        res.status(401).send('Unauthorized');
+    } else if (!id) {
+        res.status(400).send({successful: false,
+            text: 'Please provide a user to block'});
+    } else {
+        User.findById(id, function(err, blockedUser) {
+            if (err || !blockedUser) {
+                res.status(400).send({successful: false, text: 'Could not find the user you wish to block.'})
+            } else {
+                User.findById(user._id, function(err, user) {
+                    if (err) {
+                        res.status(500).send({successful: false, text: err.message});
+                    } else if (!user) {
+                        res.status(400).send({successful: false, text: 'Could not find the user you wish to block.'})
+                    } else {
+                        user.blockedUsers.push(blockedUser._id);
+                        user.save(function(err) {
+                            if (err) {
+                                res.status(500).send({successful: false, text: err.message});
+                            } else {
+                                res.status(200).send({successful: true, text: 'You have successfully blocked '
+                                    + blockedUser.firstName + ' ' + blockedUser.lastName});
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    }
+};

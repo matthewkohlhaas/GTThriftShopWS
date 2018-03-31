@@ -11,7 +11,9 @@ module.exports = function (app) {
         auth.authenticateTokenMiddleware,
         users.getUserFromId
     );
-  
+
+    app.post('/users/from-token/blocked-users', users.addBlockedUser);
+
     app.put('/users/from-token/first-name', users.updateFirstName);
 
     app.put('/users/from-token/last-name', users.updateLastName);
@@ -37,12 +39,14 @@ module.exports = function (app) {
         admins.isAdminMiddleware,
         users.findUserByEmail,
         users.banUser,
-        users.emailBannedUser);
+        users.emailBannedUser
+    );
 
     app.post('/users/unban',
         auth.authenticateTokenMiddleware,
         admins.isAdminMiddleware,
         users.findUserByEmail,
         users.unbanUser,
-        users.emailUnbannedUser);
+        users.emailUnbannedUser
+    );
 };
