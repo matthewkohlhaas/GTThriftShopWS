@@ -6,7 +6,12 @@ var UserFlagSchema = new Schema({
         type: String,
         required: false
     },
-    blockedUser: {
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
+    flaggedUser: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
