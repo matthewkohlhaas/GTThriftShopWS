@@ -1,3 +1,4 @@
+
 var messages = require('../controllers/messages.controller');
 var auth = require('../utils/auth-middleware.utils');
 
@@ -13,6 +14,7 @@ module.exports = function (app) {
         messages.setSendingUser,
         messages.validateReceiver,
         messages.validateMessage,
+        messages.verifyListingOwner,
         messages.createMessage
     );
 };

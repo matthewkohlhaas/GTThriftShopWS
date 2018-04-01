@@ -4,13 +4,17 @@ var User = require('../models/user.model');
 var Listing = require('../models/listing.model');
 
 
+var authentication = require('../utils/authentication.utils');
+var Message = require('../models/message.model');
+var User = require('../models/user.model');
+var Listing = require('../models/listing.model');
+
 exports.findMessages = function (req, res) {
     var query = Message.find({
         $and: [
             {listing: req.params.listing_id},
             {$or: [{sendingUser: req.params.first_user_id}, {sendingUser: req.params.second_user_id}]},
-            {$or: [{receivingUser: req.params.first_user_id}, {receivingUser: req.params.second_user_id}]},
-            {$or: [{sendingUser: req.params.first_user_id}, {receivingUser: req.params.first_user_id}]}
+            {$or: [{receivingUser: req.params.first_user_id}, {receivingUser: req.params.second_user_id}]}
         ]
     });
     query.populate('sendingUser').populate('receivingUser').populate('listing');
@@ -25,32 +29,12 @@ exports.findMessages = function (req, res) {
     });
 };
 
-exports.findUsersInMessageThread = function (req, res) {
-    var query = Message.find({
-        $and: [
-            {listing: req.params.listing_id},
-            {$or: [{sendingUser: req.params.first_user_id}, {sendingUser: req.params.second_user_id}]},
-            {$or: [{receivingUser: req.params.first_user_id}, {receivingUser: req.params.second_user_id}]},
-            {$or: [{sendingUser: req.params.first_user_id}, {receivingUser: req.params.second_user_id}]}
-        ]
-    });
-    query.populate('sendingUser').populate('receivingUser').populate('listing');
-    query.sort([['createdAt', 'ascending']]);
-    query.exec(function (err, messages) {
-        if (err) {
-            return res.status(500).send({successful: false, text: err.message});
-        } else {
-            req.messages = messages;
-            return res.status(200).send(req.messages);
-        }
-    });
-};
-
 exports.validateListing = function (req, res, next) {
     if (!req.body.listing) {
         return res.status(400).send('Listing not given.');
     }
-    Listing.findOne({_id: req.body.listing}, function(err, listing) {
+    var query = Listing.findOne({_id: req.body.listing}).populate('user');
+    query.exec(function(err, listing) {
         if (err) {
             return res.status(500).send(err.message);
         }
@@ -58,6 +42,7 @@ exports.validateListing = function (req, res, next) {
             return res.status(400).send('Could not find listing.');
         }
         else {
+            req.body.listingUserId = listing.user.id;
             next();
         }
     });
@@ -93,6 +78,14 @@ exports.validateMessage = function (req, res, next) {
     next();
 };
 
+exports.verifyListingOwner = function(req, res, next) {
+    if (req.body.listingUserId === req.body.sendingUser || req.body.listingUserId === req.body.receivingUser) {
+        next();
+    }
+    else {
+        res.status(403).send('forbidden');
+    }
+};
 
 exports.createMessage = function(req, res) {
     var newMessage = new Message({
@@ -103,9 +96,9 @@ exports.createMessage = function(req, res) {
     });
     newMessage.save(function(err) {
         if (err) {
-            res.status(500).send({successful: false, text: err.message});
+            res.status(500).send(err.message);
         } else {
-            res.status(201).send({successful: true, text:'Message Successfully Created'});
+            res.status(201).send('Message Successfully Created');
         }
     });
 };
