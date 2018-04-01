@@ -9,5 +9,6 @@ module.exports = function() {
     require('../app/models/listing.model');
     require('../app/models/ticket.model');
     require('../app/models/listing-flag.model');
+    require('../app/models/user-flag.model');
     return db;
 };

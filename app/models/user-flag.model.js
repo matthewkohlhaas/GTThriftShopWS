@@ -1,16 +1,16 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-var ListingFlagSchema = new Schema({
+var UserFlagSchema = new Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
     },
-    flaggedListing: {
+    flaggedUser: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Listing',
-        required: false
+        ref: 'User',
+        required: true
     },
     reason: {
         type: String,
@@ -18,4 +18,4 @@ var ListingFlagSchema = new Schema({
     }
 });
 
-module.exports = mongoose.model('ListingFlag', ListingFlagSchema);
+module.exports = mongoose.model('UserFlag', UserFlagSchema);

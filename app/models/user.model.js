@@ -44,7 +44,11 @@ var UserSchema = new Schema({
     isBanned: {
         type: Boolean,
         default: false
-    }
+    },
+    blockedUsers: [{
+        type : mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }]
 });
 
 UserSchema.pre('save', function (next) {
@@ -75,6 +79,5 @@ UserSchema.methods.comparePassword = function (password, done) {
         done(null, isMatch);
     });
 };
-
 
 module.exports = mongoose.model('User', UserSchema);

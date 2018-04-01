@@ -1,6 +1,7 @@
 var jwt = require('jsonwebtoken');
 var config = require('../../config/config');
 var User = require('../models/user.model');
+var UserFlag = require('../models/user-flag.model');
 var VerificationToken = require('../models/verification-token.model');
 var PasswordResetToken = require('../models/password-reset-token.model');
 var AuthUtils = require('../utils/authentication.utils');
@@ -37,7 +38,8 @@ exports.createAccount = function (req, res) {
             firstName: firstName,
             lastName: lastName,
             profileBio: profileBio,
-            profilePictureUrl: profilePictureUrl
+            profilePictureUrl: profilePictureUrl,
+            blockProfiles: []
         });
         user.save(function (err) {
             if (err) {
@@ -480,110 +482,39 @@ exports.updateProfileBio = function (req, res) {
     }
 };
 
-exports.updateFirstName = function (req, res) {
-    var firstName = (req.body.firstName) ? req.body.firstName.trim() : '';
-    var user = AuthUtils.getUserFromToken(req);
-    User.findById(user._id, function(err, user) {
-        if (!user) {
-            res.status(401).send('unauthorized');
-        } else {
-            if (err) {
-                res.status(500).send({successful: false, text: err.message});
-            } else if (!user) {
-                res.status(400).send({successful: false, text: 'Could not find user.'})
-            } else {
-                user.firstName = firstName;
-                user.save(function(err) {
-                    if (err) {
-                        res.status(500).send({successful: false, text: err.message});
-                    } else {
-                        res.status(200).send({successful: true, text: 'Your first name has been '
-                            + 'successfully changed to ' + firstName + ' !'});
-                    }
-                });
-            }
-        }
-    });
-};
+exports.addBlockedUser = function(req, res, next) {
+    var id = req.body.id; //user who is being blocked
+    var user = AuthUtils.getUserFromToken(req); // user who blocked a profile
 
-exports.updateLastName = function (req, res) {
-    var lastName = (req.body.lastName) ? req.body.lastName.trim() : '';
-    var user = AuthUtils.getUserFromToken(req);
-    User.findById(user._id, function(err, user) {
-        if (!user) {
-            res.status(401).send('unauthorized');
-        } else {
-            if (err) {
-                res.status(500).send({successful: false, text: err.message});
-            } else if (!user) {
-                res.status(400).send({successful: false, text: 'Could not find user.'})
+    //authenticate
+    if (!user) {
+        res.status(401).send('Unauthorized');
+    } else if (!id) {
+        res.status(400).send({successful: false,
+            text: 'Please provide a user to block'});
+    } else {
+        User.findById(id, function(err, blockedUser) {
+            if (err || !blockedUser) {
+                res.status(400).send({successful: false, text: 'Could not find the user you wish to block.'})
             } else {
-                user.lastName = lastName;
-                user.save(function (err) {
+                User.findById(user._id, function(err, user) {
                     if (err) {
                         res.status(500).send({successful: false, text: err.message});
+                    } else if (!user) {
+                        res.status(400).send({successful: false, text: 'Could not find the user you wish to block.'})
                     } else {
-                        res.status(200).send({
-                            successful: true, text: 'Your last name has been '
-                            + 'successfully changed to ' + lastName + '!'
+                        user.blockedUsers.push(blockedUser._id);
+                        user.save(function(err) {
+                            if (err) {
+                                res.status(500).send({successful: false, text: err.message});
+                            } else {
+                                res.status(200).send({successful: true, text: 'You have successfully blocked '
+                                    + blockedUser.firstName + ' ' + blockedUser.lastName});
+                            }
                         });
                     }
                 });
             }
-        }
-    });
-};
-
-exports.updateProfilePictureUrl = function (req, res) {
-    var profilePictureUrl = (req.body.profilePictureUrl) ? req.body.profilePictureUrl.trim() : '';
-    var user = AuthUtils.getUserFromToken(req);
-    User.findById(user._id, function(err, user) {
-        if (!user) {
-            res.status(401).send('unauthorized');
-        } else {
-            if (err) {
-                res.status(500).send({successful: false, text: err.message});
-            } else if (!user) {
-                res.status(400).send({successful: false, text: 'Could not find user.'})
-            } else {
-                user.profilePictureUrl = profilePictureUrl;
-                user.save(function(err) {
-                    if (err) {
-                        res.status(500).send({successful: false, text: err.message});
-                    } else {
-                        res.status(200).send({successful: true, text: 'Your profile picture has been '
-                            + 'successfully changed!'});
-                    }
-                });
-            }
-        }
-    });
-};
-
-exports.updateProfileBio = function (req, res) {
-    var profileBio = (req.body.profileBio) ? req.body.profileBio.trim() : '';
-    var user = AuthUtils.getUserFromToken(req);
-    User.findById(user._id, function(err, user) {
-        if (!user) {
-            res.status(401).send('unauthorized');
-        } else {
-            if (err) {
-                res.status(500).send({successful: false, text: err.message});
-            } else if (!user) {
-                res.status(400).send({successful: false, text: 'Could not find user.'})
-            } else {
-                user.profileBio = profileBio;
-                user.save(function (err) {
-                    if (err) {
-                        res.status(500).send({successful: false, text: err.message});
-                    } else {
-                        res.status(200).send({
-                            successful: true, text: 'Your profile bio has been '
-                            + 'successfully changed!'
-                        });
-                    }
-                });
-            }
-        }
-    });
+        });
+    }
 };

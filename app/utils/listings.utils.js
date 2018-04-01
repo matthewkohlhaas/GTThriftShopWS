@@ -3,6 +3,18 @@ var stableSort = require('stable');
 
 const ATTRIBUTES = ['price', 'createdAt'];
 
+exports.generateListingsFindOptions = function (req, blockedUsers) {
+    const options = {};
+    if (blockedUsers) {
+        options['user'] = {$nin: blockedUsers};
+    }
+    const searchString = req.query['search'];
+    if (searchString && searchString !== '' && searchString !== '""') {
+        options['$text'] = {$search: searchString};
+    }
+    return options;
+};
+
 var getAttribute = function (req) {
     var attribute = req.query['sort'];
     if (arrayContains(ATTRIBUTES, attribute)) {
@@ -20,16 +32,16 @@ var isDescending = function (req) {
 };
 
 var getDirection = function (req) {
-    if (isDescending(req)) {
-        return 'descending';
+    if (isAscending(req)) {
+        return 'ascending';
     }
-    return 'ascending';
+    return 'descending';
 };
 
 exports.addSortToQuery = function (query, req) {
     var attribute = getAttribute(req);
     if (!attribute) {
-        return;
+        attribute = 'createdAt';
     }
     var direction = getDirection(req);
     var sortParam = [attribute, direction];
