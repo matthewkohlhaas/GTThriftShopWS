@@ -24,7 +24,7 @@ exports.findMessages = function (req, res) {
     query.sort([['createdAt', 'ascending']]);
     query.exec(function (err, messages) {
         if (err) {
-            res.status(500).send({successful: false, text: err.message});
+            res.status(500).send({successful: false, text: "Message not sent."});
         } else {
             res.status(200).send(messages);
         }
