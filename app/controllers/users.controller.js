@@ -16,8 +16,6 @@ exports.createAccount = function (req, res) {
     var lastName = (req.body.lastName) ? req.body.lastName.trim() : '';
     var profilePictureUrl = (req.body.profilePictureUrl) ? req.body.profilePictureUrl.trim() : '';
     var profileBio = (req.body.profileBio) ? req.body.profileBio.trim() : '';
-    var profileBio = (req.body.profileBio) ? req.body.profileBio.trim() : '';
-    var profilePictureUrl = (req.body.profilePictureUrl) ? req.body.profilePictureUrl.trim() : '';
 
     if (!EmailUtils.validateEmail(email)) {
         res.status(400).send({successful: false, text: 'Please provide a valid Georgia Tech email address'});
@@ -38,13 +36,8 @@ exports.createAccount = function (req, res) {
             password: password,
             firstName: firstName,
             lastName: lastName,
-<<<<<<< HEAD
-            profilePictureUrl: profilePictureUrl,
-            profileBio: profileBio
-=======
             profileBio: profileBio,
             profilePictureUrl: profilePictureUrl
->>>>>>> 305452885df3d4f4156f15c199b02d7822a85863
         });
         user.save(function (err) {
             if (err) {
@@ -487,7 +480,6 @@ exports.updateProfileBio = function (req, res) {
     }
 };
 
-<<<<<<< HEAD
 exports.updateFirstName = function (req, res) {
     var firstName = (req.body.firstName) ? req.body.firstName.trim() : '';
     var user = AuthUtils.getUserFromToken(req);
