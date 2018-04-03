@@ -518,3 +518,44 @@ exports.addBlockedUser = function(req, res, next) {
         });
     }
 };
+
+exports.removeBlockedUser = function(req, res, next) {
+    var id = req.body.id; //user who is being blocked
+    var user = AuthUtils.getUserFromToken(req); // user who blocked a profile
+
+    //authenticate
+    if (!user) {
+        res.status(401).send('Unauthorized');
+    } else if (!id) {
+        res.status(400).send({successful: false,
+            text: 'Please provide a user to block'});
+    } else {
+        User.findById(id, function(err, blockedUser) {
+            if (err || !blockedUser) {
+                res.status(400).send({successful: false, text: 'Could not find the user you wish to unblock.'})
+            } else {
+                User.findById(user._id, function(err, user) {
+                    if (err) {
+                        res.status(500).send({successful: false, text: err.message});
+                    } else if (!user) {
+                        res.status(400).send({successful: false, text: 'Could not find the user you wish to unblock.'})
+                    } else {
+
+                        const index = user.blockedUsers.indexOf(blockedUser._id);
+                        if (index !== -1) {
+                            user.blockedUsers.splice(index, 1);
+                        }
+                        user.save(function(err) {
+                            if (err) {
+                                res.status(500).send({successful: false, text: err.message});
+                            } else {
+                                res.status(200).send({successful: true, text: 'You have successfully unblocked '
+                                + blockedUser.firstName + ' ' + blockedUser.lastName});
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    }
+};
