@@ -285,6 +285,17 @@ exports.findUserByEmail = function (req, res, next) {
     });
 };
 
+exports.listUsers = function(req, res) {
+    //add so where users can't be messaged by users they blocked
+    var user = AuthUtils.getUserFromToken(req);
+    const query = User.find({}).where('_id').ne(user._id);
+    query.sort([['lastName', 'ascending']]);
+    query.exec(function(err, users) {
+        if (err) throw err;
+        res.status(200).send(users);
+    });
+};
+
 function updateUserBan (user, isBanned, error_message, next) {
     user.isBanned = isBanned;
     user.save(function (err) {

@@ -7,9 +7,9 @@ module.exports = function (app) {
             auth.authenticateTokenMiddleware,
             listings.getById
         ).put(
-            auth.authenticateTokenMiddleware,
-            listings.editListing
-        );
+        auth.authenticateTokenMiddleware,
+        listings.editListing
+    );
 
     app.route('/listings')
         .get(
@@ -19,4 +19,15 @@ module.exports = function (app) {
         ).post(
             listings.createListing
         );
+
+    app.get('/listings/users/:userId',
+        auth.authenticateTokenMiddleware,
+        listings.allListingsForUser
+    );
+
+    app.get('/listings/users/:firstUserId/:secondUserId',
+        auth.authenticateTokenMiddleware,
+        listings.allListingsBetweenUsers
+    );
+
 };

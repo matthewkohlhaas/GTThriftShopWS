@@ -5,7 +5,7 @@ var Listing = require('../models/listing.model');
 
 exports.verifyUser = function (req, res, next) {
     var user = authentication.getUserFromToken(req);
-    if (req.params.first_user_id === user._id || req.params.second_use_id === user._id) {
+    if (req.params.first_user_id === user._id || req.params.second_user_id === user._id) {
         next();
     } else {
         res.status(403).send('forbidden');
@@ -24,12 +24,49 @@ exports.findMessages = function (req, res) {
     query.sort([['createdAt', 'ascending']]);
     query.exec(function (err, messages) {
         if (err) {
-            res.status(500).send({successful: false, text: "Message not sent."});
+            res.status(500).send({successful: false, text: "Messages not sent."});
         } else {
             res.status(200).send(messages);
         }
     });
 };
+
+exports.findAllMessagesForUser = function (req, res) {
+    var query = Message.find({
+        $and: [
+            {$or: [{sendingUser: req.params.first_user_id}, {receivingUser: req.params.first_user_id}]}
+        ]
+    });
+    query.populate('sendingUser').populate('receivingUser').populate('listing');
+    query.sort([['createdAt', 'descending']]);
+    query.exec(function (err, messages) {
+        if (err) {
+            res.status(500).send({successful: false, text: "Messages not sent."});
+        } else {
+            res.status(200).send(messages);
+        }
+    });
+};
+
+exports.findAllMessagesForListing = function (req, res) {
+    var query = Message.find({
+        $and: [
+            {listing: req.params.listingId},
+            {$or: [{sendingUser: req.params.userId}, {receivingUser: req.params.userId}]}
+        ]
+    });
+    query.populate('sendingUser').populate('receivingUser').populate('listing');
+    query.sort([['createdAt', 'descending']]);
+    query.exec(function (err, messages) {
+        if (err) {
+            res.status(500).send({successful: false, text: "Messages not sent."});
+        } else {
+            res.status(200).send(messages);
+        }
+    });
+};
+
+
 
 exports.validateListing = function (req, res, next) {
     if (!req.body.listing) {
@@ -81,7 +118,7 @@ exports.validateMessage = function (req, res, next) {
 };
 
 exports.verifyListingOwner = function(req, res, next) {
-    if (req.body.listingUserId === req.body.sendingUser || req.body.listingUserId === req.body.receivingUser) {
+    if (req.body.listingUserId === req.body.sendingUser._id || req.body.listingUserId === req.body.receivingUser._id) {
         next();
     }
     else {
@@ -100,7 +137,7 @@ exports.createMessage = function(req, res) {
         if (err) {
             res.status(500).send(err.message);
         } else {
-            res.status(201).send('Message Successfully Created');
+            res.status(201).send({successful: true, text:'Message Successfully Created'});
         }
     });
 };

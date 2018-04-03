@@ -12,6 +12,12 @@ module.exports = function (app) {
         users.getUserFromId
     );
 
+    //dont think i need id
+    app.get('/users/all/:id',
+        auth.authenticateTokenMiddleware,
+        users.listUsers
+    );
+
     app.post('/users/from-token/blocked-users', users.addBlockedUser);
 
     app.put('/users/from-token/first-name', users.updateFirstName);

@@ -15,6 +15,14 @@ exports.generateListingsFindOptions = function (req, blockedUsers) {
     return options;
 };
 
+exports.generateListingsFindOptionsMod = function (req, blockedUsers) {
+    const options = {};
+    if (blockedUsers) {
+        options['user'] = {$nin: blockedUsers};
+    }
+    return options;
+};
+
 var getAttribute = function (req) {
     var attribute = req.query['sort'];
     if (arrayContains(ATTRIBUTES, attribute)) {
