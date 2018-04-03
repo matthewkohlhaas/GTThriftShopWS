@@ -528,7 +528,7 @@ exports.removeBlockedUser = function(req, res, next) {
         res.status(401).send('Unauthorized');
     } else if (!id) {
         res.status(400).send({successful: false,
-            text: 'Please provide a user to block'});
+            text: 'Please provide a user to unblock'});
     } else {
         User.findById(id, function(err, blockedUser) {
             if (err || !blockedUser) {
