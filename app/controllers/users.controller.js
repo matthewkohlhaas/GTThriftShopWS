@@ -520,7 +520,7 @@ exports.addBlockedUser = function(req, res, next) {
 };
 
 exports.removeBlockedUser = function(req, res, next) {
-    var id = req.body.id; //user who is being blocked
+    var id = req.params.id; //user who is being unblocked
     var user = AuthUtils.getUserFromToken(req); // user who blocked a profile
 
     //authenticate
@@ -544,15 +544,19 @@ exports.removeBlockedUser = function(req, res, next) {
                         const index = user.blockedUsers.indexOf(blockedUser._id);
                         if (index !== -1) {
                             user.blockedUsers.splice(index, 1);
+
+                            user.save(function(err) {
+                                if (err) {
+                                    res.status(500).send({successful: false, text: err.message});
+                                } else {
+                                    res.status(200).send({successful: true, text: 'You have successfully unblocked '
+                                    + blockedUser.firstName + ' ' + blockedUser.lastName});
+                                }
+                            });
+                        } else {
+                            res.status(200).send({successful: false, text: 'You cannot unblock ' + blockedUser.firstName
+                            + ' ' + blockedUser.lastName +  ' because they have not been blocked.'});
                         }
-                        user.save(function(err) {
-                            if (err) {
-                                res.status(500).send({successful: false, text: err.message});
-                            } else {
-                                res.status(200).send({successful: true, text: 'You have successfully unblocked '
-                                + blockedUser.firstName + ' ' + blockedUser.lastName});
-                            }
-                        });
                     }
                 });
             }
