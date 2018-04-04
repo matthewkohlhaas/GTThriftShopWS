@@ -358,7 +358,7 @@ exports.getUserFromId = function (req, res, next) {
         } else {
             res.status(200).json(user);
         }
-    });
+    }).populate('blockedUsers');
 };
 
 exports.getUserFromToken = function (req, res) {
@@ -374,7 +374,7 @@ exports.getUserFromToken = function (req, res) {
             } else {
                 res.status(200).json(user);
             }
-        });
+        }).populate('blockedUsers');
     }
 };
 
