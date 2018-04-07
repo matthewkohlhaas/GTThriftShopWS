@@ -285,8 +285,7 @@ exports.findUserByEmail = function (req, res, next) {
     });
 };
 
-exports.listUsers = function(req, res) {
-    //add so where users can't be messaged by users they blocked
+exports.getAllUsers = function(req, res) {
     var user = AuthUtils.getUserFromToken(req);
     const query = User.find({}).where('_id').ne(user._id);
     query.sort([['lastName', 'ascending']]);

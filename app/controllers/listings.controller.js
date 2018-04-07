@@ -49,23 +49,6 @@ exports.allListingsForUser = function (req, res) {
     });
 };
 
-exports.allListingsBetweenUsers = function (req, res) {
-    var query = Listing.find({
-        $and: [
-            {$or: [{user: req.params.firstUserId}, {user: req.params.secondUserId}]}
-        ]
-    });
-    query.sort([['createdAt', 'ascending']]);
-    query.exec(function (err, listings) {
-        if (err) {
-            res.status(500).send(err.message);
-        } else {
-            res.status(200).send(listings);
-        }
-    });
-};
-
-
 exports.postProcessListings = function (req, res) {
     listUtils.postProcessSort(req);
     return res.status(200).send(req.listings);

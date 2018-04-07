@@ -20,7 +20,7 @@ exports.findMessages = function (req, res) {
             {$or: [{receivingUser: req.params.first_user_id}, {receivingUser: req.params.second_user_id}]}
         ]
     });
-    query.populate('sendingUser').populate('receivingUser').populate('listing');
+    query.populate('sendingUser').populate('receivingUser');
     query.sort([['createdAt', 'ascending']]);
     query.exec(function (err, messages) {
         if (err) {
@@ -30,43 +30,6 @@ exports.findMessages = function (req, res) {
         }
     });
 };
-
-exports.findAllMessagesForUser = function (req, res) {
-    var query = Message.find({
-        $and: [
-            {$or: [{sendingUser: req.params.first_user_id}, {receivingUser: req.params.first_user_id}]}
-        ]
-    });
-    query.populate('sendingUser').populate('receivingUser').populate('listing');
-    query.sort([['createdAt', 'descending']]);
-    query.exec(function (err, messages) {
-        if (err) {
-            res.status(500).send({successful: false, text: "Messages not sent."});
-        } else {
-            res.status(200).send(messages);
-        }
-    });
-};
-
-exports.findAllMessagesForListing = function (req, res) {
-    var query = Message.find({
-        $and: [
-            {listing: req.params.listingId},
-            {$or: [{sendingUser: req.params.userId}, {receivingUser: req.params.userId}]}
-        ]
-    });
-    query.populate('sendingUser').populate('receivingUser').populate('listing');
-    query.sort([['createdAt', 'descending']]);
-    query.exec(function (err, messages) {
-        if (err) {
-            res.status(500).send({successful: false, text: "Messages not sent."});
-        } else {
-            res.status(200).send(messages);
-        }
-    });
-};
-
-
 
 exports.validateListing = function (req, res, next) {
     if (!req.body.listing) {
@@ -118,7 +81,7 @@ exports.validateMessage = function (req, res, next) {
 };
 
 exports.verifyListingOwner = function(req, res, next) {
-    if (req.body.listingUserId === req.body.sendingUser._id || req.body.listingUserId === req.body.receivingUser._id) {
+    if (req.body.listingUserId === req.body.sendingUser || req.body.listingUserId === req.body.receivingUser) {
         next();
     }
     else {

@@ -25,9 +25,4 @@ module.exports = function (app) {
         listings.allListingsForUser
     );
 
-    app.get('/listings/users/:firstUserId/:secondUserId',
-        auth.authenticateTokenMiddleware,
-        listings.allListingsBetweenUsers
-    );
-
 };
