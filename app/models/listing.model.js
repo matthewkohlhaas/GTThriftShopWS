@@ -6,6 +6,10 @@ var ListingSchema = new Schema({
     description: String,
     price: Number,
     imageUrl: String,
+    category: {
+        type: String,
+        default: 'miscellaneous'
+    },
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'

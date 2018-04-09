@@ -2,7 +2,7 @@ var arrayContains = require('array-contains');
 var stableSort = require('stable');
 
 const ATTRIBUTES = ['price', 'createdAt'];
-const CATEGORIES = ['all', 'cars', 'housing', 'electronics', 'appliances', 'clothing', 'furniture', 'school',
+const CATEGORIES = ['cars', 'housing', 'electronics', 'appliances', 'clothing', 'furniture', 'school',
                     'services', 'miscellaneous', 'sports/outdoors', 'home', 'books'];
 
 var addBlockUsersOption = function (req, options, blockedUsers) {
@@ -19,8 +19,14 @@ var addSearchOption = function (req, options) {
 };
 
 var addCategoryOption = function (req, options) {
-    const category_query = req.query['category'];
-    if (category_query && arrayContains(CATEGORIES, category_query)) {
+    var category_query = req.query['category'];
+    if (!category_query) {
+        return;
+    }
+    if (category_query == 'all') {
+        return;
+    }
+    if (arrayContains(CATEGORIES, category_query)) {
         options['category'] = {$is: category_query};
     }
 };
