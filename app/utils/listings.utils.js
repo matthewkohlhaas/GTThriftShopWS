@@ -27,7 +27,7 @@ var addCategoryOption = function (req, options) {
         return;
     }
     if (arrayContains(CATEGORIES, category_query)) {
-        options['category'] = {$is: category_query};
+        options['category'] = category_query;
     }
 };
 
