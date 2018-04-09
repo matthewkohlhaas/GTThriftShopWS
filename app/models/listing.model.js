@@ -1,6 +1,9 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
+const CATEGORIES = ['cars', 'housing', 'electronics', 'appliances', 'clothing', 'furniture', 'school',
+                    'services', 'miscellaneous', 'sports/outdoors', 'home', 'books'];
+
 var ListingSchema = new Schema({
     name: String,
     description: String,
@@ -8,6 +11,7 @@ var ListingSchema = new Schema({
     imageUrl: String,
     category: {
         type: String,
+        enum: CATEGORIES,
         default: 'miscellaneous'
     },
     user: {

@@ -1,9 +1,13 @@
 var arrayContains = require('array-contains');
 var stableSort = require('stable');
+var listing = require('../models/listing.model');
 
 const ATTRIBUTES = ['price', 'createdAt'];
-const CATEGORIES = ['cars', 'housing', 'electronics', 'appliances', 'clothing', 'furniture', 'school',
-                    'services', 'miscellaneous', 'sports/outdoors', 'home', 'books'];
+
+var isListingCategory = function (category) {
+    return arrayContains(listing.schema.path('category').enumValues, category);
+};
+exports.isListingCategory = isListingCategory;
 
 var addBlockUsersOption = function (req, options, blockedUsers) {
     if (blockedUsers) {
@@ -23,10 +27,10 @@ var addCategoryOption = function (req, options) {
     if (!category_query) {
         return;
     }
-    if (category_query == 'all') {
+    if (category_query === 'all') {
         return;
     }
-    if (arrayContains(CATEGORIES, category_query)) {
+    if (isListingCategory(category_query)) {
         options['category'] = category_query;
     }
 };
