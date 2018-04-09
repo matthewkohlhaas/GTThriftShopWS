@@ -3,15 +3,28 @@ var stableSort = require('stable');
 
 const ATTRIBUTES = ['price', 'createdAt'];
 
-exports.generateListingsFindOptions = function (req, blockedUsers) {
-    const options = {};
+var addBlockUsersOption = function (req, options, blockedUsers) {
     if (blockedUsers) {
         options['user'] = {$nin: blockedUsers};
     }
+};
+
+var addSearchOption = function (req, options) {
     const searchString = req.query['search'];
     if (searchString && searchString !== '' && searchString !== '""') {
         options['$text'] = {$search: searchString};
     }
+};
+
+var addCategoryOption = function (req, options) {
+
+};
+
+exports.generateListingsFindOptions = function (req, blockedUsers) {
+    const options = {};
+    addBlockUsersOption(req, options, blockedUsers);
+    addSearchOption(req, options);
+    addCategoryOption(req, options);
     return options;
 };
 
