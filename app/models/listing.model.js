@@ -10,11 +10,6 @@ var ListingSchema = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     },
-    isOpen: {
-        type: Boolean,
-        default: true,
-        required: true
-    },
     createdAt: {
         type: Date,
         default: Date.now
