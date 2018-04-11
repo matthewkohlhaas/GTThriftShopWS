@@ -12,9 +12,6 @@ exports.generateListingsFindOptions = function (req, blockedUsers) {
     if (searchString && searchString !== '' && searchString !== '""') {
         options['$text'] = {$search: searchString};
     }
-    if (req.query['openAndClosed'] !== 'true') {
-        options['isOpen'] = true;
-    }
     return options;
 };
 
