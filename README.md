@@ -31,7 +31,7 @@ None
 
 ### Dependencies
 
-Node Package Manager handles all of this project's dependencies. Running "npm install" in the main project directory will automatically install all neccesary dependencies.
+Node Package Manager handles all this project's dependencies. Running "npm install" in the main project directory will automatically install all necessary dependencies.
 
 ### Download Instructions
 
@@ -42,23 +42,23 @@ Node Package Manager handles all of this project's dependencies. Running "npm in
 
 ### How to Run Locally
 
-* Before running the Web Service, an isnatnace of MongoDB must be running
-* Run "mongod.exe" (it should be located in C:\Program Files\MongoDB\Server\3.6\bin or wherever you installed it)
+* Before running the Web Service, an instance of MongoDB must be running
+* Run "mongod.exe" (it should be in C:\Program Files\MongoDB\Server\3.6\bin or wherever you installed it)
 * The MongoDB database server should now be running locally on your machine at the default port, 27017
-* Open a terminal in the main project directory and run "npm install" (This only has to be done once)
+* Open a terminal in the main project directory and run "npm install" (This must be done only once)
 * In the same terminal run "node server"
 * The web server should now be running locally at http://localhost:1337
 
-* With the database running, You can manage its contents easily using MongoDB Compass which can be downloaded at https://www.mongodb.com/download-center#compass
-* With the web service running, you can make HTTP requests to it using Postman whcih can be downloaded at https://www.getpostman.com/apps
+* With the database running, you can manage its contents easily using MongoDB Compass which can be downloaded at https://www.mongodb.com/download-center#compass
+* With the web service running, you can make HTTP requests to it using Postman which can be downloaded at https://www.getpostman.com/apps
 
 ### How to Prepare the Project for Deployment
 
-First, you must set the variables in "config/env/production.js." This lets the web service know information specific to deployment. Set "port" to the port number that this web service will be running on when deployed, eg. 1337. Next, you must set "db" to the address that your MongoDB will be running from, eg. 'mongodb://db1.example.net:27017.' More information about setting this string can be found at https://docs.mongodb.com/manual/reference/connection-string/. Finally, you must set "uiUrl" to the URL that the user interface application will be deplyed to, eg. 'gtthriftshop.com' (do not include 'https://' or a '/' at the end).
+First, you must set the variables in "config/env/production.js." This lets the web service know information specific to deployment. Set "port" to the port number that this web service will be running on when deployed, eg. 1337. Next, you must set "db" to the address that your MongoDB will be running from, eg. 'mongodb://db1.example.net:27017.' More information about setting this string can be found at https://docs.mongodb.com/manual/reference/connection-string/. Finally, you must set "uiUrl" to the URL that the user interface application will be deployed to, eg. 'gtthriftshop.com' (do not include 'https://' or a '/' at the end).
 
-The next thing that has to be done is setting up the secret configuration file. This will contain sensitive information that is specific to deployment. First, make a copy of "secret.config.sample.json" and rename it to "secret.config.json." In this file, set "secret" to any lengthy string of characters and/or symbols of your choice. This will be used when encrypting/decryrpting information to make it more secure. Next, set "emailUsername" and "emailPassword" to the email address and the password of the gmail account that will be used to send account verification and password reset emails. In order for the Gmail account to be able to send automated emails you must visit https://myaccount.google.com/lesssecureapps and allow less secure apps.
+The next thing that must be done is setting up the secret configuration file. This will contain sensitive information that is specific to deployment. First, make a copy of "secret.config.sample.json" and rename it to "secret.config.json." In this file, set "secret" to any lengthy string of characters and/or symbols of your choice. This will be used when encrypting/decrypting information to make it more secure. Next, set "emailUsername" and "emailPassword" to the email address and the password of the Gmail account that will be used to send account verification and password reset emails. For the Gmail account to be able to send automated emails you must visit https://myaccount.google.com/lesssecureapps and allow less secure apps.
 
-Before deploying the project, it needs a MongoDB database to connect to. The easist way to do this is through MongoDB's atlas service at https://www.mongodb.com/cloud/atlas. A comprohensive offical guide for MongoDB Atlas can be found at https://docs.atlas.mongodb.com/getting-started/.
+Before deploying the project, it needs a MongoDB database to connect to. The easiest way to do this is through MongoDB's atlas service at https://www.mongodb.com/cloud/atlas. A comprehensive official guide for MongoDB Atlas can be found at https://docs.atlas.mongodb.com/getting-started/.
 
 ### How to Deploy
 
@@ -66,6 +66,6 @@ To deploy the project, you can use a cloud platform such as Amazon AWS or Heroku
 
 ### Troubleshooting
 
-When running the web service, you may encounter the error message, "Error: Cannot find module." Make sure to install all neccesary dependencies by opening a terminal in the main project directory and running "npm install." If the problem persists, delete the folder, "Node Modules," if it exists and try again.
+When running the web service, you may encounter the error message, "Error: Cannot find module." Make sure to install all necessary dependencies by opening a terminal in the main project directory and running "npm install." If the problem persists, delete the folder, "Node Modules," if it exists and try again.
 
 If your Gmail account is failing to send automated emails for this web service, make sure that you have enabled less secured apps at https://myaccount.google.com/lesssecureapps.
