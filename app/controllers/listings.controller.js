@@ -104,6 +104,9 @@ exports.editListing = function (req, res, next) {
             if (req.body.imageUrl) {
                 listing.imageUrl = req.body.imageUrl;
             }
+            if (req.body.isOpen !== Null) {
+                listing.isOpen = req.body.isOpen;
+            }
             listing.save(function (err) {
                 if (err) {
                     res.status(500).send({successful: false, text: err.message});
