@@ -13,7 +13,7 @@ var ListingSchema = new Schema({
     isOpen: {
         type: Boolean,
         default: true,
-        mandatory: true
+        required: true
     },
     createdAt: {
         type: Date,
