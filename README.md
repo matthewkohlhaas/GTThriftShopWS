@@ -36,7 +36,7 @@ Node Package Manager handles all this project's dependencies. Running "npm insta
 ### Download Instructions
 
 * The code can be downloaded as a .zip from the project's repository at https://github.com/matthewkohlhaas/GTThriftShopWS
-\
+
 * This project's repository can also be cloned by running "git clone https://github.com/matthewkohlhaas/GTThriftShopWS.git"
 * If you don't have git, an installer can be downloaded at https://git-scm.com/downloads
 
