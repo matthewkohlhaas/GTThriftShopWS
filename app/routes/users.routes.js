@@ -39,8 +39,6 @@ module.exports = function (app) {
 
     app.get('/users/authenticate', users.authenticateToken);
 
-    app.post('/users/from-token/first-name', users.updateFirstName);
-
     app.post('/users/from-token/last-name', users.updateLastName);
 
     app.post('/users/from-token/profile-picture-url', users.updateProfilePictureUrl);

@@ -34,15 +34,11 @@ exports.list = function (req, res, next) {
 };
 
 exports.allListingsForUser = function (req, res) {
-    var query = Listing.find({
-        $and: [
-            {user: req.params.userId}
-        ]
-    });
+    var query = Listing.find({user: req.params.userId});
     query.sort([['createdAt', 'ascending']]);
     query.exec(function (err, listings) {
         if (err) {
-            res.status(500).send({successful: false, text: "Message not sent."});
+            res.status(500).send({successful: false, text: "Listings not found."});
         } else {
             res.status(200).send(listings);
         }
