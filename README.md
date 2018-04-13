@@ -66,6 +66,6 @@ To deploy the project, you can use a cloud platform such as Amazon AWS or Heroku
 
 ### Troubleshooting
 
-When running the web service, you may encounter the error message, "Error: Cannot find module." Make sure to install all necessary dependencies by opening a terminal in the main project directory and running "npm install." If the problem persists, delete the folder, "Node Modules," if it exists and try again.
+When running the web service, you may encounter the error message, "Error: Cannot find module." Make sure to install all necessary dependencies by opening a terminal in the main project directory and running "npm install." If the problem persists, delete the folder "Node Modules" if it exists and try again.
 
-If your Gmail account is failing to send automated emails for this web service, make sure that you have enabled less secured apps at https://myaccount.google.com/lesssecureapps.
+If your Gmail account is failing to send automated emails for this web service, make sure that you have enabled less secure apps at https://myaccount.google.com/lesssecureapps.
