@@ -45,6 +45,10 @@ var UserSchema = new Schema({
         type: Boolean,
         default: false
     },
+    offers: [{
+        type : mongoose.Schema.Types.ObjectId,
+        ref: 'Offer'
+    }],
     blockedUsers: [{
         type : mongoose.Schema.Types.ObjectId,
         ref: 'User'
