@@ -187,29 +187,35 @@ exports.createOffer = function (req, res, next) {
 };
 
 exports.getOffers = function (req, res, next) {
-    Listing.findById(req.params.id).populate('user').populate('offers').exec(function (err, listing) {
-        if (err) {
-            res.status(500).send({successful: false, text: err.message});
+    Listing.findById(req.params.id)
+        .populate('user')
+        .populate({
+            path: 'offers',
+            populate: {path: 'user'}
+        })
+        .exec(function (err, listing) {
+            if (err) {
+                res.status(500).send({successful: false, text: err.message});
 
-        } else if (!listing) {
-            res.status(400).send({successful: false, text: 'Cannot find listing :/'});
+            } else if (!listing) {
+                res.status(400).send({successful: false, text: 'Cannot find listing :/'});
 
-        } else if (arrayContains(listing.user.blockedUsers, req.body.user._id)) {
-            res.status(403).send({successful: false, text: 'You cannot get offers for this listing. You are blocked by '
-                + 'the listing owner.'});
+            } else if (arrayContains(listing.user.blockedUsers, req.body.user._id)) {
+                res.status(403).send({successful: false, text: 'You cannot get offers for this listing. You are blocked'
+                    + ' by the listing owner.'});
 
-        } else if (req.body.user._id === listing.user._id.toString()) {
-            res.status(200).json(listing.offers);
+            } else if (req.body.user._id === listing.user._id.toString()) {
+                res.status(200).json(listing.offers);
 
-        } else {
-            const offers = [];
-            for (var i = 0; i < listing.offers.length; i++) {
-                var curr = listing.offers[i];
-                if (curr.user.toString() === req.body.user._id) {
-                    offers.push(curr);
+            } else {
+                const offers = [];
+                for (var i = 0; i < listing.offers.length; i++) {
+                    var curr = listing.offers[i];
+                    if (curr.user._id.toString() === req.body.user._id) {
+                        offers.push(curr);
+                    }
                 }
+                res.status(200).json(offers);
             }
-            res.status(200).json(offers);
-        }
     });
 };
