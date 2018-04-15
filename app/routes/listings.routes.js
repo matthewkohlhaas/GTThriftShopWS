@@ -25,13 +25,9 @@ module.exports = function (app) {
         listings.allListingsForUser
     );
 
-    app.route('/listings/:id/offers/')
-        .get(
-            auth.authenticateToken,
-            listings.getOffers
-        ).post(
-            auth.getUserFromToken,
-            listings.processPrice,
-            listings.createOffer
-        );
+    app.post('/listings/:id/offers/',
+        auth.getUserFromToken,
+        listings.processPrice,
+        listings.createOffer
+    );
 };

@@ -159,19 +159,25 @@ exports.createOffer = function (req, res, next) {
                             res.status(400).send({successful: false, text: 'Cannot find user :/'});
                         } else {
                             const price = req.body.price;
+                            const messages = [{
+                                author: req.body.user._id,
+                                text: req.body.message
+                            }];
                             new Offer({
                                 user: req.body.user._id,
                                 price: price,
-                                listing: listing._id
+                                listing: listing._id,
+                                messages: messages
                             }).save(function (err, offer) {
                                 if (err) {
-                                    res.status(500).send({successful: false, text: 'Failed to make offer of ' + price});
+                                    res.status(500).send({successful: false, text: 'Failed to make offer of $'
+                                        + price});
                                 } else {
                                     listing.offers.push(offer._id);
                                     listing.save();
                                     user.offers.push(offer._id);
                                     user.save();
-                                    res.status(200).send({successful: true, text: 'Successfully made offer of '
+                                    res.status(200).send({successful: true, text: 'Successfully made offer of $'
                                         + price});
                                 }
                             });

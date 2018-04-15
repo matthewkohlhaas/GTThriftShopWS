@@ -1,7 +1,7 @@
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-var OfferSchema = new Schema({
+const OfferSchema = new Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
@@ -17,8 +17,15 @@ var OfferSchema = new Schema({
         required: true
     },
     messages: [{
-        type : mongoose.Schema.Types.ObjectId,
-        ref: 'Message'
+        author: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            required: true
+        },
+        text: {
+            type: String,
+            required: true
+        }
     }],
     createdAt: {
         type: Date,
