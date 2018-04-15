@@ -139,52 +139,74 @@ exports.processPrice = function (req, res, next) {
 };
 
 exports.createOffer = function (req, res, next) {
-    Listing.findById(req.params.id, function (err, listing) {
+    Listing.findById(req.params.id).populate('user').exec(function (err, listing) {
         if (err) {
             res.status(500).send({successful: false, text: err.message});
+
         } else if (!listing) {
             res.status(400).send({successful: false, text: 'Cannot find listing :/'});
+
+        } else if (user && arrayContains(user.blockedUsers, req.body.user._id)) {
+            res.status(403).send({successful: false, text: 'You cannot make offer on this listing. You are blocked by '
+                + 'the listing owner.'});
         } else {
-            User.findById(listing.user._id, function (err, user) {
+            User.findById(req.body.user._id, function (err, user) {
                 if (err) {
                     res.status(500).send({successful: false, text: err.message});
-                } else if (user && arrayContains(user.blockedUsers, req.body.user._id)) {
-                    res.status(400).send({successful: false, text: 'You cannot make offer on this listing. '
-                        + 'You are blocked by listing owner.'});
+                } else if (!user) {
+                    res.status(400).send({successful: false, text: 'Cannot find user :/'});
                 } else {
-                    User.findById(req.body.user._id, function (err, user) {
+                    const price = req.body.price;
+                    const messages = [{
+                        author: req.body.user._id,
+                        text: req.body.message
+                    }];
+                    new Offer({
+                        user: req.body.user._id,
+                        price: price,
+                        listing: listing._id,
+                        messages: messages
+                    }).save(function (err, offer) {
                         if (err) {
-                            res.status(500).send({successful: false, text: err.message});
-                        } else if (!user) {
-                            res.status(400).send({successful: false, text: 'Cannot find user :/'});
+                            res.status(500).send({successful: false, text: 'Failed to make offer of $' + price});
                         } else {
-                            const price = req.body.price;
-                            const messages = [{
-                                author: req.body.user._id,
-                                text: req.body.message
-                            }];
-                            new Offer({
-                                user: req.body.user._id,
-                                price: price,
-                                listing: listing._id,
-                                messages: messages
-                            }).save(function (err, offer) {
-                                if (err) {
-                                    res.status(500).send({successful: false, text: 'Failed to make offer of $'
-                                        + price});
-                                } else {
-                                    listing.offers.push(offer._id);
-                                    listing.save();
-                                    user.offers.push(offer._id);
-                                    user.save();
-                                    res.status(200).send({successful: true, text: 'Successfully made offer of $'
-                                        + price});
-                                }
-                            });
+                            listing.offers.push(offer._id);
+                            listing.save();
+                            user.offers.push(offer._id);
+                            user.save();
+                            res.status(200).send({successful: true, text: 'You made an offer of $' + price});
                         }
                     });
                 }
             });
+        }
+    });
+};
+
+exports.getOffers = function (req, res, next) {
+    Listing.findById(req.params.id).populate('user').populate('offers').exec(function (err, listing) {
+        if (err) {
+            res.status(500).send({successful: false, text: err.message});
+
+        } else if (!listing) {
+            res.status(400).send({successful: false, text: 'Cannot find listing :/'});
+
+        } else if (listing.user && arrayContains(listing.user.blockedUsers, req.body.user._id)) {
+            res.status(403).send({successful: false, text: 'You cannot get offers for this listing. You are blocked by '
+                + 'the listing owner.'});
+
+        } else if (req.body.user._id === listing.user._id.toString()) {
+            res.status(200).json(listing.offers);
+
+        } else {
+            const offers = [];
+            for (var i = 0; i < listing.offers.length; i++) {
+                var curr = listing.offers[i];
+                if (curr.user.toString() === req.body.user._id) {
+                    offers.push(curr);
+                }
+            }
+            res.status(200).json(offers);
         }
     });
 };
