@@ -1,8 +1,9 @@
-var authentication = require('../utils/authentication.utils');
-var Listing = require('../models/listing.model');
-var listUtils = require('../utils/listings.utils');
-var ObjectId = require('mongodb').ObjectID;
-var User = require('../models/user.model');
+const authentication = require('../utils/authentication.utils');
+const Listing = require('../models/listing.model');
+const User = require('../models/user.model');
+const Offer = require('../models/offer.model');
+const listUtils = require('../utils/listings.utils');
+const ObjectId = require('mongodb').ObjectID;
 
 exports.list = function (req, res, next) {
     const user = authentication.getUserFromToken(req, res);
@@ -127,4 +128,50 @@ exports.editListing = function (req, res, next) {
     });
 };
 
+exports.processPrice = function (req, res, next) {
+    const price = (req.body.price) ? parseFloat(req.body.price).toFixed(2) : req.body.price;
+    if (price) {
+        req.body.price = price;
+        return next();
+    }
+    return res.status(400).send({successful: false, text: 'Please provide a price.'});
+};
 
+exports.createOffer = function (req, res, next) {
+    Listing.findById(req.params.id, function (err, listing) {
+        if (err) {
+            res.status(500).send({successful: false, text: err.message});
+        } else if (!listing) {
+            res.status(400).send({successful: false, text: 'Cannot find listing :/'});
+        } else {
+            User.findById(req.body.user._id, function (err, user) {
+                if (err) {
+                    res.status(500).send({successful: false, text: err.message});
+                } else if (!user) {
+                    res.status(400).send({successful: false, text: 'Cannot find user :/'});
+                } else {
+                    const price = req.body.price;
+                    new Offer({
+                        user: req.body.user._id,
+                        price: price,
+                        listing: listing._id
+                    }).save(function (err, offer) {
+                        if (err) {
+                            res.status(500).send({successful: false, text: 'Failed to make offer of ' + price});
+                        } else {
+                            listing.offers.push(offer._id);
+                            listing.save();
+                            user.offers.push(offer._id);
+                            user.save();
+                            res.status(200).send({successful: true, text: 'Successfully Made offer of ' + price});
+                        }
+                    });
+                }
+            });
+        }
+    });
+};
+
+exports.getOffers = function (req, res, next) {
+
+};

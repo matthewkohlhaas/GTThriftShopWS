@@ -4,16 +4,16 @@ var auth = require('../utils/auth-middleware.utils');
 module.exports = function (app) {
     app.route('/listings/:id')
         .get(
-            auth.authenticateTokenMiddleware,
+            auth.authenticateToken,
             listings.getById
         ).put(
-        auth.authenticateTokenMiddleware,
-        listings.editListing
-    );
+            auth.authenticateToken,
+            listings.editListing
+        );
 
     app.route('/listings')
         .get(
-            auth.authenticateTokenMiddleware,
+            auth.authenticateToken,
             listings.list,
             listings.postProcessListings
         ).post(
@@ -21,8 +21,17 @@ module.exports = function (app) {
         );
 
     app.get('/listings/users/:userId',
-        auth.authenticateTokenMiddleware,
+        auth.authenticateToken,
         listings.allListingsForUser
     );
 
+    app.route('/listings/:id/offers/')
+        .get(
+            auth.authenticateToken,
+            listings.getOffers
+        ).post(
+            auth.getUserFromToken,
+            listings.processPrice,
+            listings.createOffer
+        );
 };

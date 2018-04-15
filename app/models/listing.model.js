@@ -10,6 +10,10 @@ var ListingSchema = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     },
+    offers: [{
+        type : mongoose.Schema.Types.ObjectId,
+        ref: 'Offer'
+    }],
     createdAt: {
         type: Date,
         default: Date.now
