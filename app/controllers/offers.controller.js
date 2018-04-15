@@ -13,7 +13,7 @@ exports.postMessage = function (req, res, next) {
                 + 'with.'});
 
         } else {
-            console.log(req.body.user._id + ' ' + offer.user.toString());
+            offer.messages.push({author: req.body.user._id, text: req.body.text});
             offer.save(function(err) {
                 if (err) {
                     res.status(500).send({successful: false, text: 'Failed to post message.'});
