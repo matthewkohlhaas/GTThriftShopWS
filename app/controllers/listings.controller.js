@@ -4,6 +4,7 @@ const User = require('../models/user.model');
 const Offer = require('../models/offer.model');
 const listUtils = require('../utils/listings.utils');
 const ObjectId = require('mongodb').ObjectID;
+const arrayContains = require('array-contains');
 
 exports.list = function (req, res, next) {
     const user = authentication.getUserFromToken(req, res);
@@ -144,34 +145,40 @@ exports.createOffer = function (req, res, next) {
         } else if (!listing) {
             res.status(400).send({successful: false, text: 'Cannot find listing :/'});
         } else {
-            User.findById(req.body.user._id, function (err, user) {
+            User.findById(listing.user._id, function (err, user) {
                 if (err) {
                     res.status(500).send({successful: false, text: err.message});
-                } else if (!user) {
-                    res.status(400).send({successful: false, text: 'Cannot find user :/'});
+                } else if (user && arrayContains(user.blockedUsers, req.body.user._id)) {
+                    res.status(400).send({successful: false, text: 'You cannot make offer on this listing. '
+                        + 'You are blocked by listing owner.'});
                 } else {
-                    const price = req.body.price;
-                    new Offer({
-                        user: req.body.user._id,
-                        price: price,
-                        listing: listing._id
-                    }).save(function (err, offer) {
+                    User.findById(req.body.user._id, function (err, user) {
                         if (err) {
-                            res.status(500).send({successful: false, text: 'Failed to make offer of ' + price});
+                            res.status(500).send({successful: false, text: err.message});
+                        } else if (!user) {
+                            res.status(400).send({successful: false, text: 'Cannot find user :/'});
                         } else {
-                            listing.offers.push(offer._id);
-                            listing.save();
-                            user.offers.push(offer._id);
-                            user.save();
-                            res.status(200).send({successful: true, text: 'Successfully Made offer of ' + price});
+                            const price = req.body.price;
+                            new Offer({
+                                user: req.body.user._id,
+                                price: price,
+                                listing: listing._id
+                            }).save(function (err, offer) {
+                                if (err) {
+                                    res.status(500).send({successful: false, text: 'Failed to make offer of ' + price});
+                                } else {
+                                    listing.offers.push(offer._id);
+                                    listing.save();
+                                    user.offers.push(offer._id);
+                                    user.save();
+                                    res.status(200).send({successful: true, text: 'Successfully made offer of '
+                                        + price});
+                                }
+                            });
                         }
                     });
                 }
             });
         }
     });
-};
-
-exports.getOffers = function (req, res, next) {
-
 };
