@@ -146,7 +146,7 @@ exports.createOffer = function (req, res, next) {
         } else if (!listing) {
             res.status(400).send({successful: false, text: 'Cannot find listing :/'});
 
-        } else if (user && arrayContains(user.blockedUsers, req.body.user._id)) {
+        } else if (arrayContains(listing.user.blockedUsers, req.body.user._id)) {
             res.status(403).send({successful: false, text: 'You cannot make offer on this listing. You are blocked by '
                 + 'the listing owner.'});
         } else {
@@ -191,7 +191,7 @@ exports.getOffers = function (req, res, next) {
         } else if (!listing) {
             res.status(400).send({successful: false, text: 'Cannot find listing :/'});
 
-        } else if (listing.user && arrayContains(listing.user.blockedUsers, req.body.user._id)) {
+        } else if (arrayContains(listing.user.blockedUsers, req.body.user._id)) {
             res.status(403).send({successful: false, text: 'You cannot get offers for this listing. You are blocked by '
                 + 'the listing owner.'});
 
