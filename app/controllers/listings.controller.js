@@ -157,10 +157,13 @@ exports.createOffer = function (req, res, next) {
                     res.status(400).send({successful: false, text: 'Cannot find user :/'});
                 } else {
                     const price = req.body.price;
-                    const messages = [{
-                        author: req.body.user._id,
-                        text: req.body.message
-                    }];
+                    const messages = [];
+                    if (req.body.message) {
+                        messages.push({
+                            author: req.body.user._id,
+                            text: req.body.message
+                        });
+                    }
                     new Offer({
                         user: req.body.user._id,
                         price: price,
