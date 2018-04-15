@@ -138,7 +138,7 @@ exports.processPrice = function (req, res, next) {
     return res.status(400).send({successful: false, text: 'Please provide a price.'});
 };
 
-exports.createOffer = function (req, res, next) {
+exports.postOffer = function (req, res, next) {
     Listing.findById(req.params.id).populate('user').exec(function (err, listing) {
         if (err) {
             res.status(500).send({successful: false, text: err.message});
@@ -147,8 +147,8 @@ exports.createOffer = function (req, res, next) {
             res.status(400).send({successful: false, text: 'Cannot find listing :/'});
 
         } else if (arrayContains(listing.user.blockedUsers, req.body.user._id)) {
-            res.status(403).send({successful: false, text: 'You cannot make offer on this listing. You are blocked by '
-                + 'the listing owner.'});
+            res.status(403).send({successful: false, text: 'You cannot post an offer on this listing. You are blocked '
+                + 'by the listing owner.'});
         } else {
             User.findById(req.body.user._id, function (err, user) {
                 if (err) {

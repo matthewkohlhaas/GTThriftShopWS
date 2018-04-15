@@ -28,13 +28,13 @@ module.exports = function (app) {
     );
 
     app.route(
-        '/listings/:id/offers/'
+        '/listings/:id/offers'
     ).get(
         auth.getUserFromToken,
         listings.getOffers
     ).post(
         auth.getUserFromToken,
         listings.processPrice,
-        listings.createOffer
+        listings.postOffer
     );
 };
