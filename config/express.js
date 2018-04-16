@@ -25,6 +25,7 @@ module.exports = function() {
     require('../app/routes/index.routes.js')(app);
     require('../app/routes/users.routes.js')(app);
     require('../app/routes/listings.routes.js')(app);
+    require('../app/routes/questions.routes.js')(app);
     require('../app/routes/offers.routes.js')(app);
     require('../app/routes/flags.routes.js')(app);
     require('../app/routes/tickets.routes.js')(app);
