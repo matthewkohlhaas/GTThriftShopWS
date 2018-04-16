@@ -57,28 +57,39 @@ exports.createListing = function(req, res, next) {
     var price = (req.body.price) ? parseFloat(req.body.price).toFixed(2) : req.body.price;
     var description = (req.body.description) ? req.body.description.trim() : '';
     var imageUrl = (req.body.imageUrl) ? req.body.imageUrl.trim() : '';
-    var user = authentication.getUserFromToken(req);
 
-    //authenticate
-    if (!user) {
-        res.status(401).send('unauthorized');
-    } else if (name === '') {
+    if (name === '') {
         res.status(400).send({successful: false, text: 'Please provide a name.'});
     } else if (price && isNaN(price)) {
         res.status(400).send({successful: false, text: 'Please provide a valid price.'});
     } else {
-        new Listing({
-            name: name,
-            description: description,
-            price: price,
-            imageUrl: imageUrl,
-            user: user._id
-
-        }).save(function(err) {
+        User.findById(req.body.user._id, function (err, user) {
             if (err) {
-                res.status(500).send({successful: false, text: 'Failed to create listing:.' + name});
+                res.status(500).send(err.message);
+            } else if (!user) {
+                res.status(400).send('Could not find user.');
             } else {
-                res.status(200).send({successful: true, text: 'Created listing:' + name + '!'});
+                new Listing({
+                    name: name,
+                    description: description,
+                    price: price,
+                    imageUrl: imageUrl,
+                    user: user._id
+
+                }).save(function(err, listing) {
+                    if (err) {
+                        res.status(500).send({successful: false, text: 'Failed to create listing:.' + name});
+                    } else {
+                        user.listings.push(listing._id);
+                        user.save(function (err) {
+                            if (err) {
+                                res.status(500).send(err.message);
+                            } else {
+                                res.status(200).send({successful: true, text: 'Created listing:' + name + '!'});
+                            }
+                        });
+                    }
+                });
             }
         });
     }

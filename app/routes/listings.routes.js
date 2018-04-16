@@ -19,6 +19,7 @@ module.exports = function (app) {
         listings.list,
         listings.postProcessListings
     ).post(
+        auth.getUserFromToken,
         listings.createListing
     );
 

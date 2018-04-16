@@ -45,6 +45,10 @@ var UserSchema = new Schema({
         type: Boolean,
         default: false
     },
+    listings: [{
+        type : mongoose.Schema.Types.ObjectId,
+        ref: 'Listing'
+    }],
     offers: [{
         type : mongoose.Schema.Types.ObjectId,
         ref: 'Offer'

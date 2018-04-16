@@ -5,19 +5,17 @@ var auth = require('../utils/auth-middleware.utils');
 module.exports = function (app) {
     app.post('/users', users.createAccount);
 
-    app.get('/users/from-token', users.getUserFromToken);
+    app.get('/users/from-token',
+        auth.getUserFromToken,
+        users.getUserFromToken
+    );
 
     app.get('/users/:id',
         auth.authenticateToken,
         users.getUserFromId
     );
 
-    app.get('/users/all-users/:id',
-        auth.authenticateToken,
-        users.getAllUsers
-    );
-
-    app.post('/users/from-token/blocked-users', users.addBlockedUser);
+    app.post('/users/from-token/blocked-users',users.addBlockedUser);
 
     app.delete('/users/from-token/blocked-users/:id', users.removeBlockedUser);
     
