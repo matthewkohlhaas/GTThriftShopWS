@@ -43,7 +43,7 @@ exports.postMessage = function (req, res, next) {
 };
 
 exports.putAccepted = function (req, res, next) {
-    if (!req.body.accepted) {
+    if (req.body.accepted !== true && req.body.accepted !== false) {
         res.status(400).send({successful: false, text: 'Please provide an accepted status'});
     } else {
         Offer.findById(req.params.id).populate('listing').exec(function (err, offer) {
@@ -74,7 +74,7 @@ exports.putAccepted = function (req, res, next) {
 };
 
 exports.putRejected = function (req, res, next) {
-    if (!req.body.rejected) {
+    if (req.body.rejected !== true && req.body.rejected !== false) {
         res.status(400).send({successful: false, text: 'Please provide an rejected status'});
     } else {
         Offer.findById(req.params.id).populate('listing').exec(function (err, offer) {
