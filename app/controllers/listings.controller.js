@@ -97,7 +97,13 @@ exports.createListing = function(req, res, next) {
 };
 
 exports.getById = function(req, res, next) {
-    Listing.findById(req.params.id).populate('user').populate('questions').exec(function (err, listing) {
+    Listing.findById(req.params.id)
+        .populate('user')
+        .populate({
+            path: 'questions',
+            populate: {path: 'user'}
+        })
+        .exec(function (err, listing) {
         if (err) {
             res.status(500).send({successful: false, text: err.message});
         } else if (!listing) {
@@ -168,14 +174,14 @@ exports.postQuestion = function (req, res, next) {
                         question: req.body.question
                     }).save(function (err, question) {
                         if (err) {
-                            res.status(500).send({successful: false, text: 'Failed to post question, "'
+                            res.status(500).send({successful: false, text: 'Failed to ask question, "'
                                 + req.body.question + '"'});
                         } else {
                             listing.questions.push(question._id);
                             listing.save();
                             user.questions.push(question._id);
                             user.save();
-                            res.status(200).send({successful: true, text: 'Successfully posted question, "'
+                            res.status(200).send({successful: true, text: 'Successfully asked question, "'
                                 + req.body.question + '"'});
                         }
                     });
