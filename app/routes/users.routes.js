@@ -12,9 +12,16 @@ module.exports = function (app) {
         users.getUserFromId
     );
 
+    app.get('/users/all-users/:id',
+        auth.authenticateTokenMiddleware,
+        users.getAllUsers
+    );
+
+    app.post('/users/from-token/blocked-users', users.addBlockedUser);
+
     app.post('/users/from-token/blocked-users', users.addBlockedUser)
 
-    app.put('/users/from-token/blocked-users', users.removeBlockedUser);
+    app.delete('/users/from-token/blocked-users/:id', users.removeBlockedUser);
 
     app.put('/users/from-token/first-name', users.updateFirstName);
 

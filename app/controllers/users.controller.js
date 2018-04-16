@@ -15,8 +15,8 @@ exports.createAccount = function (req, res) {
     var password = (req.body.password) ? req.body.password.trim() : '';
     var firstName = (req.body.firstName) ? req.body.firstName.trim() : '';
     var lastName = (req.body.lastName) ? req.body.lastName.trim() : '';
-    var profileBio = (req.body.profileBio) ? req.body.profileBio.trim() : '';
     var profilePictureUrl = (req.body.profilePictureUrl) ? req.body.profilePictureUrl.trim() : '';
+    var profileBio = (req.body.profileBio) ? req.body.profileBio.trim() : '';
 
     if (!EmailUtils.validateEmail(email)) {
         res.status(400).send({successful: false, text: 'Please provide a valid Georgia Tech email address'});
@@ -44,7 +44,7 @@ exports.createAccount = function (req, res) {
         user.save(function (err) {
             if (err) {
                 res.status(400).send({successful: false, text: 'The email address, ' +  user.email
-                    + ' is already associated with another account.'});
+                + ' is already associated with another account.'});
             } else {
                 const errorMessage = 'Your account was created, however we could not send a verification email.';
 
@@ -74,10 +74,10 @@ exports.resendVerificationEmail = function (req, res, next) {
 
             } else if (!user) {
                 res.status(400).send({successful: false, text: 'We were unable to find an account associated with that '
-                    + 'email address.' });
+                + 'email address.' });
             } else if (user.isVerified) {
                 res.status(400).send({successful: false, text: 'The account associated with that email address has '
-                    + 'already been verified.'});
+                + 'already been verified.'});
             } else {
                 var token = new VerificationToken({user: user._id});
 
@@ -116,14 +116,14 @@ exports.verifyUser = function (req, res, next) {
             res.status(500).send({successful: false, text: err.message});
         } else if (!token) {
             res.status(400).send({successful: false, text: 'We were unable to verify your account. This verification '
-                + 'link my have expired.'})
+            + 'link my have expired.'})
         } else {
             User.findOne({_id: token.user}, function (err, user) {
                 if (err) {
                     res.status(500).send({successful: false, text: err.message});
                 } else if (!user) {
                     res.status(400).send({successful: false, text: 'We were unable to find an account associated with '
-                        + 'this verification link.'})
+                    + 'this verification link.'})
                 } else if (user.isVerified) {
                     res.status(400).send({successful: false, text: 'Your account has already been verified.'})
                 } else {
@@ -133,7 +133,7 @@ exports.verifyUser = function (req, res, next) {
                             res.status(500).send({successful: false, text: err.message});
                         } else {
                             res.status(200).send({successful: true, text: 'Your account has been successfully verified!'
-                                + ' You may now log in.'});
+                            + ' You may now log in.'});
                         }
                     });
                 }
@@ -154,7 +154,7 @@ exports.sendPasswordResetEmail = function (req, res, next) {
                 res.status(500).send({successful: false, text: err.message});
             } else if (!user) {
                 res.status(400).send({successful: false, text: 'We were unable to find an account associated with that '
-                    + 'email address.' });
+                + 'email address.' });
             } else {
                 var token = new PasswordResetToken({user: user._id});
 
@@ -171,10 +171,10 @@ exports.sendPasswordResetEmail = function (req, res, next) {
 
                         EmailUtils.sendEmail(user.email, emailSubject, emailText, function () {
                             res.status(200).send({successful: true, text: 'Check your email for a link to reset '
-                                + 'your password.'});
+                            + 'your password.'});
                         }, function (err) {
                             res.status(503).send({successful: false, text: 'Our email service failed to send a '
-                                + 'password reset email.'});
+                            + 'password reset email.'});
                         });
                     }
                 });
@@ -195,14 +195,14 @@ exports.resetPassword = function (req, res, next) {
                 res.status(500).send({successful: false, text: err.message});
             } else if (!token) {
                 res.status(400).send({successful: false, text: 'We are unable to reset your password. This password '
-                    + 'reset link may have expired.'})
+                + 'reset link may have expired.'})
             } else {
                 User.findOne({_id: token.user}, function (err, user) {
                     if (err) {
                         res.status(500).send({successful: false, text: err.message});
                     } else if (!user) {
                         res.status(400).send({successful: false, text: 'We were unable to find an account associated '
-                            + 'with this password reset link.'})
+                        + 'with this password reset link.'})
                     } else {
                         user.password = password;
                         user.isVerified = true; // user is verified since they used their email to reset their password
@@ -215,7 +215,7 @@ exports.resetPassword = function (req, res, next) {
                                         res.status(500).send({successful: false, text: err.message});
                                     } else {
                                         res.status(200).send({successful: true, text: 'Your password has been '
-                                            + 'successfully changed! You may now log in with your new password.'});
+                                        + 'successfully changed! You may now log in with your new password.'});
                                     }
                                 });
                             }
@@ -257,7 +257,7 @@ exports.login = function (req, res) {
                         delete payload.password;
                         var token = jwt.sign(payload, config.secret, {expiresIn: TOKEN_EXPIRATION_TIME});
                         res.status(200).send({successful: true, text: 'Successfully logged in as ' + user.firstName
-                            + ' ' + user.lastName + '.', token: token});
+                        + ' ' + user.lastName + '.', token: token});
                     }
                 });
             }
@@ -282,6 +282,16 @@ exports.findUserByEmail = function (req, res, next) {
         }
         req.found_user = user;
         next();
+    });
+};
+
+exports.getAllUsers = function(req, res) {
+    var user = AuthUtils.getUserFromToken(req);
+    const query = User.find({}).where('_id').ne(user._id);
+    query.sort([['lastName', 'ascending']]);
+    query.exec(function(err, users) {
+        if (err) throw err;
+        res.status(200).send(users);
     });
 };
 
@@ -358,7 +368,7 @@ exports.getUserFromId = function (req, res, next) {
         } else {
             res.status(200).json(user);
         }
-    });
+    }).populate('blockedUsers');
 };
 
 exports.getUserFromToken = function (req, res) {
@@ -374,7 +384,7 @@ exports.getUserFromToken = function (req, res) {
             } else {
                 res.status(200).json(user);
             }
-        });
+        }).populate('blockedUsers');
     }
 };
 
@@ -396,7 +406,7 @@ exports.updateFirstName = function (req, res) {
                         res.status(500).send({successful: false, text: err.message});
                     } else {
                         res.status(200).send({successful: true, text: 'Your first name has been '
-                            + 'successfully changed to ' + firstName + ' !'});
+                        + 'successfully changed to ' + firstName + ' !'});
                     }
                 });
             }
@@ -422,7 +432,7 @@ exports.updateLastName = function (req, res) {
                         res.status(500).send({successful: false, text: err.message});
                     } else {
                         res.status(200).send({successful: true, text: 'Your last name has been '
-                            + 'successfully changed to ' + lastName + '!'});
+                        + 'successfully changed to ' + lastName + '!'});
                     }
                 });
             }
@@ -448,7 +458,7 @@ exports.updateProfilePictureUrl = function (req, res) {
                         res.status(500).send({successful: false, text: err.message});
                     } else {
                         res.status(200).send({successful: true, text: 'Your profile picture has been '
-                            + 'successfully changed!'});
+                        + 'successfully changed!'});
                     }
                 });
             }
@@ -474,7 +484,7 @@ exports.updateProfileBio = function (req, res) {
                         res.status(500).send({successful: false, text: err.message});
                     } else {
                         res.status(200).send({successful: true, text: 'Your profile bio has been '
-                            + 'successfully changed!'});
+                        + 'successfully changed!'});
                     }
                 });
             }
@@ -509,7 +519,7 @@ exports.addBlockedUser = function(req, res, next) {
                                 res.status(500).send({successful: false, text: err.message});
                             } else {
                                 res.status(200).send({successful: true, text: 'You have successfully blocked '
-                                    + blockedUser.firstName + ' ' + blockedUser.lastName});
+                                + blockedUser.firstName + ' ' + blockedUser.lastName});
                             }
                         });
                     }
@@ -520,7 +530,7 @@ exports.addBlockedUser = function(req, res, next) {
 };
 
 exports.removeBlockedUser = function(req, res, next) {
-    var id = req.body.id; //user who is being blocked
+    var id = req.params.id; //user who is being unblocked
     var user = AuthUtils.getUserFromToken(req); // user who blocked a profile
 
     //authenticate
@@ -528,7 +538,7 @@ exports.removeBlockedUser = function(req, res, next) {
         res.status(401).send('Unauthorized');
     } else if (!id) {
         res.status(400).send({successful: false,
-            text: 'Please provide a user to block'});
+            text: 'Please provide a user to unblock'});
     } else {
         User.findById(id, function(err, blockedUser) {
             if (err || !blockedUser) {
@@ -544,15 +554,19 @@ exports.removeBlockedUser = function(req, res, next) {
                         const index = user.blockedUsers.indexOf(blockedUser._id);
                         if (index !== -1) {
                             user.blockedUsers.splice(index, 1);
+
+                            user.save(function(err) {
+                                if (err) {
+                                    res.status(500).send({successful: false, text: err.message});
+                                } else {
+                                    res.status(200).send({successful: true, text: 'You have successfully unblocked '
+                                    + blockedUser.firstName + ' ' + blockedUser.lastName});
+                                }
+                            });
+                        } else {
+                            res.status(200).send({successful: false, text: 'You cannot unblock ' + blockedUser.firstName
+                            + ' ' + blockedUser.lastName +  ' because they have not been blocked.'});
                         }
-                        user.save(function(err) {
-                            if (err) {
-                                res.status(500).send({successful: false, text: err.message});
-                            } else {
-                                res.status(200).send({successful: true, text: 'You have successfully unblocked '
-                                + blockedUser.firstName + ' ' + blockedUser.lastName});
-                            }
-                        });
                     }
                 });
             }

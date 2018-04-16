@@ -2,7 +2,8 @@ var messages = require('../controllers/messages.controller');
 var auth = require('../utils/auth-middleware.utils');
 
 module.exports = function (app) {
-    app.get('/messages/:listing_id/:first_user_id/:second_user_id',
+
+    app.get('/messages/:listing_id/users/:first_user_id/:second_user_id',
         auth.authenticateTokenMiddleware,
         messages.verifyUser,
         messages.findMessages
