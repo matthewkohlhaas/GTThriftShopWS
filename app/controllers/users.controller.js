@@ -360,15 +360,18 @@ exports.isUserBanned = function (req, res, next) {
 };
 
 exports.getUserFromId = function (req, res, next) {
-    User.findOne({_id: req.params.id}, function (err, user) {
-        if (err) {
-            res.status(500).send(err.message);
-        } else if (!user) {
-            res.status(400).send('Could not find user with given id.');
-        } else {
-            res.status(200).json(user);
-        }
-    }).populate('blockedUsers');
+    User.findById(req.params.id)
+        .populate('offers')
+        .populate('blockedUsers')
+        .exec(function (err, user) {
+            if (err) {
+                res.status(500).send(err.message);
+            } else if (!user) {
+                res.status(400).send('Could not find user with given id.');
+            } else {
+                res.status(200).json(user);
+            }
+        });
 };
 
 exports.getUserFromToken = function (req, res) {
@@ -376,15 +379,18 @@ exports.getUserFromToken = function (req, res) {
     if (!user) {
         res.status(401).send('unauthorized');
     } else {
-        User.findById(user._id, function (err, user) {
-            if (err) {
-                res.status(500).send(err.message);
-            } else if (!user) {
-                res.status(400).send('Could not find user.');
-            } else {
-                res.status(200).json(user);
-            }
-        }).populate('blockedUsers');
+        User.findById(user._id)
+            .populate('offers')
+            .populate('blockedUsers')
+            .exec( function (err, user) {
+                if (err) {
+                    res.status(500).send(err.message);
+                } else if (!user) {
+                    res.status(400).send('Could not find user.');
+                } else {
+                    res.status(200).json(user);
+                }
+            });
     }
 };
 
