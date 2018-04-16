@@ -11,4 +11,14 @@ module.exports = function (app) {
         auth.getUserFromToken,
         offers.postMessage
     );
+
+    app.put('/offers/:id/accepted',
+        auth.getUserFromToken,
+        offers.putAccepted
+    );
+
+    app.put('/offers/:id/rejected',
+        auth.getUserFromToken,
+        offers.putRejected
+    );
 };

@@ -16,6 +16,14 @@ const OfferSchema = new Schema({
         type: Number,
         required: true
     },
+    accepted: {
+        type: Boolean,
+        default: false
+    },
+    rejected: {
+        type: Boolean,
+        default: false
+    },
     messages: [{
         author: {
             type: mongoose.Schema.Types.ObjectId,
