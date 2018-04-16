@@ -28,6 +28,11 @@ module.exports = function (app) {
         listings.allListingsForUser
     );
 
+    app.post('/listings/:id/questions',
+        auth.getUserFromToken,
+        listings.postQuestion
+    );
+
     app.route(
         '/listings/:id/offers'
     ).get(

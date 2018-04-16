@@ -10,6 +10,10 @@ var ListingSchema = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     },
+    questions: [{
+        type : mongoose.Schema.Types.ObjectId,
+        ref: 'Question'
+    }],
     offers: [{
         type : mongoose.Schema.Types.ObjectId,
         ref: 'Offer'
