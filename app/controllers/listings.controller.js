@@ -48,6 +48,18 @@ exports.listForCurrentUser = function (req, res) {
     });
 };
 
+exports.allListingsForUser = function (req, res) {
+    var query = Listing.find({user: req.params.userId});
+    query.sort([['createdAt', 'ascending']]);
+    query.exec(function (err, listings) {
+        if (err) {
+            res.status(500).send({successful: false, text: "Listings not found."});
+        } else {
+            res.status(200).send(listings);
+        }
+    });
+};
+
 exports.postProcessListings = function (req, res) {
     listUtils.postProcessSort(req);
     return res.status(200).send(req.listings);

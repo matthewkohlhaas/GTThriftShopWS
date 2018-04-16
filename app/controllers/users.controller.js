@@ -15,8 +15,8 @@ exports.createAccount = function (req, res) {
     var password = (req.body.password) ? req.body.password.trim() : '';
     var firstName = (req.body.firstName) ? req.body.firstName.trim() : '';
     var lastName = (req.body.lastName) ? req.body.lastName.trim() : '';
-    var profileBio = (req.body.profileBio) ? req.body.profileBio.trim() : '';
     var profilePictureUrl = (req.body.profilePictureUrl) ? req.body.profilePictureUrl.trim() : '';
+    var profileBio = (req.body.profileBio) ? req.body.profileBio.trim() : '';
 
     if (!EmailUtils.validateEmail(email)) {
         res.status(400).send({successful: false, text: 'Please provide a valid Georgia Tech email address'});
@@ -285,6 +285,16 @@ exports.findUserByEmail = function (req, res, next) {
     });
 };
 
+exports.getAllUsers = function(req, res) {
+    var user = AuthUtils.getUserFromToken(req);
+    const query = User.find({}).where('_id').ne(user._id);
+    query.sort([['lastName', 'ascending']]);
+    query.exec(function(err, users) {
+        if (err) throw err;
+        res.status(200).send(users);
+    });
+};
+
 function updateUserBan (user, isBanned, error_message, next) {
     user.isBanned = isBanned;
     user.save(function (err) {
@@ -358,7 +368,7 @@ exports.getUserFromId = function (req, res, next) {
         } else {
             res.status(200).json(user);
         }
-    });
+    }).populate('blockedUsers');
 };
 
 exports.getUserFromToken = function (req, res) {
@@ -374,7 +384,7 @@ exports.getUserFromToken = function (req, res) {
             } else {
                 res.status(200).json(user);
             }
-        });
+        }).populate('blockedUsers');
     }
 };
 
@@ -512,6 +522,51 @@ exports.addBlockedUser = function(req, res, next) {
                                     + blockedUser.firstName + ' ' + blockedUser.lastName});
                             }
                         });
+                    }
+                });
+            }
+        });
+    }
+};
+
+exports.removeBlockedUser = function(req, res, next) {
+    var id = req.params.id; //user who is being unblocked
+    var user = AuthUtils.getUserFromToken(req); // user who blocked a profile
+
+    //authenticate
+    if (!user) {
+        res.status(401).send('Unauthorized');
+    } else if (!id) {
+        res.status(400).send({successful: false,
+            text: 'Please provide a user to unblock'});
+    } else {
+        User.findById(id, function(err, blockedUser) {
+            if (err || !blockedUser) {
+                res.status(400).send({successful: false, text: 'Could not find the user you wish to unblock.'})
+            } else {
+                User.findById(user._id, function(err, user) {
+                    if (err) {
+                        res.status(500).send({successful: false, text: err.message});
+                    } else if (!user) {
+                        res.status(400).send({successful: false, text: 'Could not find the user you wish to unblock.'})
+                    } else {
+
+                        const index = user.blockedUsers.indexOf(blockedUser._id);
+                        if (index !== -1) {
+                            user.blockedUsers.splice(index, 1);
+
+                            user.save(function(err) {
+                                if (err) {
+                                    res.status(500).send({successful: false, text: err.message});
+                                } else {
+                                    res.status(200).send({successful: true, text: 'You have successfully unblocked '
+                                    + blockedUser.firstName + ' ' + blockedUser.lastName});
+                                }
+                            });
+                        } else {
+                            res.status(200).send({successful: false, text: 'You cannot unblock ' + blockedUser.firstName
+                            + ' ' + blockedUser.lastName +  ' because they have not been blocked.'});
+                        }
                     }
                 });
             }
