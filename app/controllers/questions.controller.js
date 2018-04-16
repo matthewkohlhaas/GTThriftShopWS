@@ -1,5 +1,22 @@
 const Question = require('../models/question.model');
 
+exports.getQuestion = function(req, res, next) {
+    Question.findById(req.params.id)
+        .populate('listing')
+        .populate('user')
+        .exec(function (err, question) {
+            if (err) {
+                res.status(500).send({successful: false, text: err.message});
+
+            } else if (!question) {
+                res.status(400).send({successful: false, text: 'Cannot find question :/'});
+
+            } else {
+                res.status(200).json(question);
+            }
+        });
+};
+
 exports.putAnswer = function (req, res, next) {
     if (!req.body.answer) {
         res.status(400).send({successful: false, text: 'Please provide an answer'});
@@ -9,7 +26,7 @@ exports.putAnswer = function (req, res, next) {
                 res.status(500).send({successful: false, text: err.message});
 
             } else if (!question) {
-                res.status(400).send({successful: false, text: 'Cannot find offer :/'});
+                res.status(400).send({successful: false, text: 'Cannot find question :/'});
 
             } else if (req.body.user._id !== question.listing.user.toString()) {
                 res.status(403).send({successful: false, text: 'You cannot answer a question about a listing that is '
