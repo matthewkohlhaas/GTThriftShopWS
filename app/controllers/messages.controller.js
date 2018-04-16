@@ -3,10 +3,9 @@ var Message = require('../models/message.model');
 var User = require('../models/user.model');
 var Listing = require('../models/listing.model');
 
-
 exports.verifyUser = function (req, res, next) {
     var user = authentication.getUserFromToken(req);
-    if (req.params.first_user_id === user._id || req.params.second_use_id === user._id) {
+    if (req.params.first_user_id === user._id || req.params.second_user_id === user._id) {
         next();
     } else {
         res.status(403).send('forbidden');
@@ -21,13 +20,13 @@ exports.findMessages = function (req, res) {
             {$or: [{receivingUser: req.params.first_user_id}, {receivingUser: req.params.second_user_id}]}
         ]
     });
-    query.populate('sendingUser').populate('receivingUser').populate('listing');
+    query.populate('sendingUser').populate('receivingUser');
     query.sort([['createdAt', 'ascending']]);
     query.exec(function (err, messages) {
         if (err) {
-            res.status(500).send(err.message);
+            res.status(500).send({successful: false, text: "Messages not sent."});
         } else {
-            res.status(200).send(messages)
+            res.status(200).send(messages);
         }
     });
 };
@@ -101,7 +100,7 @@ exports.createMessage = function(req, res) {
         if (err) {
             res.status(500).send(err.message);
         } else {
-            res.status(201).send('Message Successfully Created');
+            res.status(201).send({successful: true, text:'Message Successfully Created'});
         }
     });
 };
