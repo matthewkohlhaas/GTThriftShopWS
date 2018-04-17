@@ -2,12 +2,18 @@ var listings = require('../controllers/listings.controller');
 var auth = require('../utils/auth-middleware.utils');
 
 module.exports = function (app) {
-    app.route(
-        '/listings/:id'
-    ).get(
-        auth.authenticateToken,
-        listings.getById
-    ).put(
+
+    app.route('/listings/current-user')
+        .get(
+            auth.authenticateToken,
+            listings.listForCurrentUser
+        );
+
+    app.route('/listings/:id')
+        .get(
+            auth.authenticateToken,
+            listings.getById
+        ).put(
         auth.authenticateToken,
         listings.editListing
     );

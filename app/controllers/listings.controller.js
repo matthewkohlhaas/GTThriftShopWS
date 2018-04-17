@@ -36,6 +36,21 @@ exports.list = function (req, res, next) {
     });
 };
 
+exports.listForCurrentUser = function (req, res) {
+    const user = authentication.getUserFromToken(req, res);
+    const findOptions = { user: user._id };
+    const query = Listing.find(findOptions).populate('user');
+    const sortParam = [ 'createdAt', 'descending' ];
+    query.sort([sortParam]);
+    query.exec(function (err, listings) {
+        if (err) {
+            res.status(500).send(err.message);
+        } else {
+            res.status(200).send(listings);
+        }
+    });
+};
+
 exports.allListingsForUser = function (req, res) {
     var query = Listing.find({user: req.params.userId});
     query.sort([['createdAt', 'ascending']]);
@@ -58,7 +73,12 @@ exports.createListing = function(req, res, next) {
     var price = (req.body.price) ? parseFloat(req.body.price).toFixed(2) : req.body.price;
     var description = (req.body.description) ? req.body.description.trim() : '';
     var imageUrl = (req.body.imageUrl) ? req.body.imageUrl.trim() : '';
+    var user = authentication.getUserFromToken(req);
+    var category = Listing.schema.path('category').defaultValue;
 
+    if (req.body.category && listUtils.isListingCategory(category)) {
+        category = req.body.category;
+    }
     if (name === '') {
         res.status(400).send({successful: false, text: 'Please provide a name.'});
     } else if (price && isNaN(price)) {
@@ -75,6 +95,7 @@ exports.createListing = function(req, res, next) {
                     description: description,
                     price: price,
                     imageUrl: imageUrl,
+                    category: category,
                     user: user._id
 
                 }).save(function(err, listing) {
@@ -135,6 +156,9 @@ exports.editListing = function (req, res, next) {
             }
             if (req.body.imageUrl) {
                 listing.imageUrl = req.body.imageUrl;
+            }
+            if (req.body.category && listUtils.isListingCategory(req.body.category)) {
+                listing.category = req.body.category;
             }
             listing.save(function (err) {
                 if (err) {
