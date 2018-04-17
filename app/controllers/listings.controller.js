@@ -56,6 +56,10 @@ exports.createListing = function(req, res, next) {
     var description = (req.body.description) ? req.body.description.trim() : '';
     var imageUrl = (req.body.imageUrl) ? req.body.imageUrl.trim() : '';
     var user = authentication.getUserFromToken(req);
+    var category = Listing.schema.path('category').defaultValue;
+    if (req.body.category && listUtils.isListingCategory(category)) {
+        category = req.body.category;
+    }
 
     //authenticate
     if (!user) {
@@ -70,6 +74,7 @@ exports.createListing = function(req, res, next) {
             description: description,
             price: price,
             imageUrl: imageUrl,
+            category: category,
             user: user._id
 
         }).save(function(err) {
@@ -115,6 +120,9 @@ exports.editListing = function (req, res, next) {
             }
             if (req.body.imageUrl) {
                 listing.imageUrl = req.body.imageUrl;
+            }
+            if (req.body.category && listUtils.isListingCategory(req.body.category)) {
+                listing.category = req.body.category;
             }
             listing.save(function (err) {
                 if (err) {
