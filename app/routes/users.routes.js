@@ -5,21 +5,17 @@ var auth = require('../utils/auth-middleware.utils');
 module.exports = function (app) {
     app.post('/users', users.createAccount);
 
-    app.get('/users/from-token', users.getUserFromToken);
+    app.get('/users/from-token',
+        auth.getUserFromToken,
+        users.getUserFromToken
+    );
 
     app.get('/users/:id',
-        auth.authenticateTokenMiddleware,
+        auth.authenticateToken,
         users.getUserFromId
     );
 
-    app.get('/users/all-users/:id',
-        auth.authenticateTokenMiddleware,
-        users.getAllUsers
-    );
-
-    app.post('/users/from-token/blocked-users', users.addBlockedUser);
-
-    app.post('/users/from-token/blocked-users', users.addBlockedUser)
+    app.post('/users/from-token/blocked-users',users.addBlockedUser);
 
     app.delete('/users/from-token/blocked-users/:id', users.removeBlockedUser);
     
@@ -44,7 +40,7 @@ module.exports = function (app) {
     app.get('/users/authenticate', users.authenticateToken);
 
     app.post('/users/ban',
-        auth.authenticateTokenMiddleware,
+        auth.authenticateToken,
         admins.isAdminMiddleware,
         users.findUserByEmail,
         users.banUser,
@@ -52,7 +48,7 @@ module.exports = function (app) {
     );
 
     app.post('/users/unban',
-        auth.authenticateTokenMiddleware,
+        auth.authenticateToken,
         admins.isAdminMiddleware,
         users.findUserByEmail,
         users.unbanUser,
