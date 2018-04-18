@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 const CATEGORIES = ['cars', 'housing', 'electronics', 'appliances', 'clothing', 'furniture', 'school',
-                    'services', 'miscellaneous', 'sports/outdoors', 'home', 'books'];
+                    'services', 'miscellaneous', 'sports-outdoors', 'home', 'books'];
 
 var ListingSchema = new Schema({
     name: String,
