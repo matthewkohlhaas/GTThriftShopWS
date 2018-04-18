@@ -4,14 +4,14 @@ var auth = require('../utils/auth-middleware.utils');
 
 module.exports = function (app) {
     app.post('/admins',
-        auth.authenticateTokenMiddleware,
+        auth.authenticateToken,
         admins.isAdminMiddleware,
         users.findUserByEmail,
         admins.doesAdminAlreadyExist,
         admins.registerAdmin);
 
     app.get('/admins/is-admin',
-        auth.authenticateTokenMiddleware,
+        auth.authenticateToken,
         admins.isAdmin);
 
 /*
@@ -20,7 +20,7 @@ module.exports = function (app) {
  *  deleted, new admins can only be registered by another admin.
  */
     app.post('/admins/temp',
-        auth.authenticateTokenMiddleware,
+        auth.authenticateToken,
         users.findUserByEmail,
         admins.doesAdminAlreadyExist,
         admins.registerAdmin);

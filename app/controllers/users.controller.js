@@ -285,16 +285,6 @@ exports.findUserByEmail = function (req, res, next) {
     });
 };
 
-exports.getAllUsers = function(req, res) {
-    var user = AuthUtils.getUserFromToken(req);
-    const query = User.find({}).where('_id').ne(user._id);
-    query.sort([['lastName', 'ascending']]);
-    query.exec(function(err, users) {
-        if (err) throw err;
-        res.status(200).send(users);
-    });
-};
-
 function updateUserBan (user, isBanned, error_message, next) {
     user.isBanned = isBanned;
     user.save(function (err) {
@@ -360,23 +350,27 @@ exports.isUserBanned = function (req, res, next) {
 };
 
 exports.getUserFromId = function (req, res, next) {
-    User.findOne({_id: req.params.id}, function (err, user) {
-        if (err) {
-            res.status(500).send(err.message);
-        } else if (!user) {
-            res.status(400).send('Could not find user with given id.');
-        } else {
-            res.status(200).json(user);
-        }
-    }).populate('blockedUsers');
+    User.findById(req.params.id)
+        .populate('listings')
+        .populate('offers')
+        .populate('blockedUsers')
+        .exec(function (err, user) {
+            if (err) {
+                res.status(500).send(err.message);
+            } else if (!user) {
+                res.status(400).send('Could not find user with given id.');
+            } else {
+                res.status(200).json(user);
+            }
+        });
 };
 
 exports.getUserFromToken = function (req, res) {
-    var user = AuthUtils.getUserFromToken(req);
-    if (!user) {
-        res.status(401).send('unauthorized');
-    } else {
-        User.findById(user._id, function (err, user) {
+    User.findById(req.body.user._id)
+        .populate('listings')
+        .populate('offers')
+        .populate('blockedUsers')
+        .exec(function (err, user) {
             if (err) {
                 res.status(500).send(err.message);
             } else if (!user) {
@@ -384,8 +378,7 @@ exports.getUserFromToken = function (req, res) {
             } else {
                 res.status(200).json(user);
             }
-        }).populate('blockedUsers');
-    }
+        });
 };
 
 exports.updateFirstName = function (req, res) {

@@ -1,17 +1,45 @@
 var arrayContains = require('array-contains');
 var stableSort = require('stable');
+var listing = require('../models/listing.model');
 
 const ATTRIBUTES = ['price', 'createdAt'];
 
-exports.generateListingsFindOptions = function (req, blockedUsers) {
-    const options = {};
+var isListingCategory = function (category) {
+    return arrayContains(listing.schema.path('category').enumValues, category);
+};
+exports.isListingCategory = isListingCategory;
+
+var addBlockUsersOption = function (req, options, blockedUsers) {
     if (blockedUsers) {
         options['user'] = {$nin: blockedUsers};
     }
+};
+
+var addSearchOption = function (req, options) {
     const searchString = req.query['search'];
     if (searchString && searchString !== '' && searchString !== '""') {
         options['$text'] = {$search: searchString};
     }
+};
+
+var addCategoryOption = function (req, options) {
+    var category_query = req.query['category'];
+    if (!category_query) {
+        return;
+    }
+    if (category_query === 'all') {
+        return;
+    }
+    if (isListingCategory(category_query)) {
+        options['category'] = category_query;
+    }
+};
+
+exports.generateListingsFindOptions = function (req, blockedUsers) {
+    const options = {};
+    addBlockUsersOption(req, options, blockedUsers);
+    addSearchOption(req, options);
+    addCategoryOption(req, options);
     return options;
 };
 

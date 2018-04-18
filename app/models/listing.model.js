@@ -1,15 +1,31 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
+const CATEGORIES = ['cars', 'housing', 'electronics', 'appliances', 'clothing', 'furniture', 'school',
+                    'services', 'miscellaneous', 'sports/outdoors', 'home', 'books'];
+
 var ListingSchema = new Schema({
     name: String,
     description: String,
     price: Number,
     imageUrl: String,
+    category: {
+        type: String,
+        enum: CATEGORIES,
+        default: 'miscellaneous'
+    },
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     },
+    questions: [{
+        type : mongoose.Schema.Types.ObjectId,
+        ref: 'Question'
+    }],
+    offers: [{
+        type : mongoose.Schema.Types.ObjectId,
+        ref: 'Offer'
+    }],
     createdAt: {
         type: Date,
         default: Date.now
