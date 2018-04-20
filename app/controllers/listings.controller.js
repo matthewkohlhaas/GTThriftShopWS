@@ -18,7 +18,6 @@ exports.list = function (req, res, next) {
             const findOptions = listUtils.generateListingsFindOptions(req, blockedUsers);
 
             const query = Listing.find(findOptions).populate('user');
-
             listUtils.addSortToQuery(query, req);
 
             query.exec(function (err, listings) {
@@ -45,9 +44,35 @@ exports.allListingsForUser = function (req, res) {
     });
 };
 
+exports.listForCurrentUser = function (req, res) {
+    const user = authentication.getUserFromToken(req, res);
+    const findOptions = { user: user._id };
+    const query = Listing.find(findOptions).populate('user');
+    const sortParam = [ 'createdAt', 'descending' ];
+    query.sort([sortParam]);
+    query.exec(function (err, listings) {
+        if (err) {
+            res.status(500).send(err.message);
+        } else {
+            res.status(200).send(listings);
+        }
+    });
+};
+
 exports.postProcessListings = function (req, res) {
     listUtils.postProcessSort(req);
     return res.status(200).send(req.listings);
+};
+
+exports.removeClosedListings = function (req, res) {
+    const query = Listing.find({}).where('isOpen').ne(false).populate('user');
+    query.exec(function (err, listings) {
+        if (err) {
+            res.status(500).send(err.message);
+        } else {
+            res.status(200).send(listings);
+        }
+    });
 };
 
 exports.createListing = function(req, res, next) {
@@ -115,6 +140,9 @@ exports.editListing = function (req, res, next) {
             }
             if (req.body.imageUrl) {
                 listing.imageUrl = req.body.imageUrl;
+            }
+            if (req.body.isOpen !== null) {
+                listing.isOpen = req.body.isOpen;
             }
             listing.save(function (err) {
                 if (err) {
