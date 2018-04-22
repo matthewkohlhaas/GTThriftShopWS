@@ -18,6 +18,11 @@ var ListingSchema = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     },
+    isOpen: {
+        type: Boolean,
+        default: true,
+        mandatory: true
+    },
     questions: [{
         type : mongoose.Schema.Types.ObjectId,
         ref: 'Question'

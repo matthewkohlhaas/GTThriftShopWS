@@ -20,8 +20,7 @@ exports.list = function (req, res, next) {
             }
             const findOptions = listUtils.generateListingsFindOptions(req, blockedUsers);
 
-            const query = Listing.find(findOptions).populate('user');
-
+            const query = Listing.find(findOptions).where('isOpen').ne(false).populate('user');
             listUtils.addSortToQuery(query, req);
 
             query.exec(function (err, listings) {
@@ -32,6 +31,18 @@ exports.list = function (req, res, next) {
                     next();
                 }
             });
+        }
+    });
+};
+
+exports.allListingsForUser = function (req, res) {
+    var query = Listing.find({user: req.params.userId});
+    query.sort([['createdAt', 'ascending']]);
+    query.exec(function (err, listings) {
+        if (err) {
+            res.status(500).send({successful: false, text: "Listings not found."});
+        } else {
+            res.status(200).send(listings);
         }
     });
 };
@@ -51,21 +62,20 @@ exports.listForCurrentUser = function (req, res) {
     });
 };
 
-exports.allListingsForUser = function (req, res) {
-    var query = Listing.find({user: req.params.userId});
-    query.sort([['createdAt', 'ascending']]);
+exports.postProcessListings = function (req, res) {
+    listUtils.postProcessSort(req);
+    return res.status(200).send(req.listings);
+};
+
+exports.removeClosedListings = function (req, res) {
+    const query = Listing.find({}).where('isOpen').ne(false).populate('user');
     query.exec(function (err, listings) {
         if (err) {
-            res.status(500).send({successful: false, text: "Listings not found."});
+            res.status(500).send(err.message);
         } else {
             res.status(200).send(listings);
         }
     });
-};
-
-exports.postProcessListings = function (req, res) {
-    listUtils.postProcessSort(req);
-    return res.status(200).send(req.listings);
 };
 
 exports.createListing = function(req, res, next) {
@@ -157,6 +167,8 @@ exports.editListing = function (req, res, next) {
             if (req.body.imageUrl) {
                 listing.imageUrl = req.body.imageUrl;
             }
+            if (req.body.isOpen !== null) {
+                listing.isOpen = req.body.isOpen;
             if (req.body.category && listUtils.isListingCategory(req.body.category)) {
                 listing.category = req.body.category;
             }
@@ -168,7 +180,7 @@ exports.editListing = function (req, res, next) {
                 }
             });
         }
-    });
+    }});
 };
 
 exports.postQuestion = function (req, res, next) {

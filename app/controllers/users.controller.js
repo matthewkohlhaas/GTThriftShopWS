@@ -44,7 +44,7 @@ exports.createAccount = function (req, res) {
         user.save(function (err) {
             if (err) {
                 res.status(400).send({successful: false, text: 'The email address, ' +  user.email
-                    + ' is already associated with another account.'});
+                + ' is already associated with another account.'});
             } else {
                 const errorMessage = 'Your account was created, however we could not send a verification email.';
 
@@ -74,10 +74,10 @@ exports.resendVerificationEmail = function (req, res, next) {
 
             } else if (!user) {
                 res.status(400).send({successful: false, text: 'We were unable to find an account associated with that '
-                    + 'email address.' });
+                + 'email address.' });
             } else if (user.isVerified) {
                 res.status(400).send({successful: false, text: 'The account associated with that email address has '
-                    + 'already been verified.'});
+                + 'already been verified.'});
             } else {
                 var token = new VerificationToken({user: user._id});
 
@@ -116,14 +116,14 @@ exports.verifyUser = function (req, res, next) {
             res.status(500).send({successful: false, text: err.message});
         } else if (!token) {
             res.status(400).send({successful: false, text: 'We were unable to verify your account. This verification '
-                + 'link my have expired.'})
+            + 'link my have expired.'})
         } else {
             User.findOne({_id: token.user}, function (err, user) {
                 if (err) {
                     res.status(500).send({successful: false, text: err.message});
                 } else if (!user) {
                     res.status(400).send({successful: false, text: 'We were unable to find an account associated with '
-                        + 'this verification link.'})
+                    + 'this verification link.'})
                 } else if (user.isVerified) {
                     res.status(400).send({successful: false, text: 'Your account has already been verified.'})
                 } else {
@@ -133,7 +133,7 @@ exports.verifyUser = function (req, res, next) {
                             res.status(500).send({successful: false, text: err.message});
                         } else {
                             res.status(200).send({successful: true, text: 'Your account has been successfully verified!'
-                                + ' You may now log in.'});
+                            + ' You may now log in.'});
                         }
                     });
                 }
@@ -154,7 +154,7 @@ exports.sendPasswordResetEmail = function (req, res, next) {
                 res.status(500).send({successful: false, text: err.message});
             } else if (!user) {
                 res.status(400).send({successful: false, text: 'We were unable to find an account associated with that '
-                    + 'email address.' });
+                + 'email address.' });
             } else {
                 var token = new PasswordResetToken({user: user._id});
 
@@ -171,10 +171,10 @@ exports.sendPasswordResetEmail = function (req, res, next) {
 
                         EmailUtils.sendEmail(user.email, emailSubject, emailText, function () {
                             res.status(200).send({successful: true, text: 'Check your email for a link to reset '
-                                + 'your password.'});
+                            + 'your password.'});
                         }, function (err) {
                             res.status(503).send({successful: false, text: 'Our email service failed to send a '
-                                + 'password reset email.'});
+                            + 'password reset email.'});
                         });
                     }
                 });
@@ -195,14 +195,14 @@ exports.resetPassword = function (req, res, next) {
                 res.status(500).send({successful: false, text: err.message});
             } else if (!token) {
                 res.status(400).send({successful: false, text: 'We are unable to reset your password. This password '
-                    + 'reset link may have expired.'})
+                + 'reset link may have expired.'})
             } else {
                 User.findOne({_id: token.user}, function (err, user) {
                     if (err) {
                         res.status(500).send({successful: false, text: err.message});
                     } else if (!user) {
                         res.status(400).send({successful: false, text: 'We were unable to find an account associated '
-                            + 'with this password reset link.'})
+                        + 'with this password reset link.'})
                     } else {
                         user.password = password;
                         user.isVerified = true; // user is verified since they used their email to reset their password
@@ -215,7 +215,7 @@ exports.resetPassword = function (req, res, next) {
                                         res.status(500).send({successful: false, text: err.message});
                                     } else {
                                         res.status(200).send({successful: true, text: 'Your password has been '
-                                            + 'successfully changed! You may now log in with your new password.'});
+                                        + 'successfully changed! You may now log in with your new password.'});
                                     }
                                 });
                             }
@@ -257,7 +257,7 @@ exports.login = function (req, res) {
                         delete payload.password;
                         var token = jwt.sign(payload, config.secret, {expiresIn: TOKEN_EXPIRATION_TIME});
                         res.status(200).send({successful: true, text: 'Successfully logged in as ' + user.firstName
-                            + ' ' + user.lastName + '.', token: token});
+                        + ' ' + user.lastName + '.', token: token});
                     }
                 });
             }
@@ -399,7 +399,7 @@ exports.updateFirstName = function (req, res) {
                         res.status(500).send({successful: false, text: err.message});
                     } else {
                         res.status(200).send({successful: true, text: 'Your first name has been '
-                            + 'successfully changed to ' + firstName + ' !'});
+                        + 'successfully changed to ' + firstName + ' !'});
                     }
                 });
             }
@@ -425,7 +425,7 @@ exports.updateLastName = function (req, res) {
                         res.status(500).send({successful: false, text: err.message});
                     } else {
                         res.status(200).send({successful: true, text: 'Your last name has been '
-                            + 'successfully changed to ' + lastName + '!'});
+                        + 'successfully changed to ' + lastName + '!'});
                     }
                 });
             }
@@ -451,7 +451,7 @@ exports.updateProfilePictureUrl = function (req, res) {
                         res.status(500).send({successful: false, text: err.message});
                     } else {
                         res.status(200).send({successful: true, text: 'Your profile picture has been '
-                            + 'successfully changed!'});
+                        + 'successfully changed!'});
                     }
                 });
             }
@@ -477,7 +477,7 @@ exports.updateProfileBio = function (req, res) {
                         res.status(500).send({successful: false, text: err.message});
                     } else {
                         res.status(200).send({successful: true, text: 'Your profile bio has been '
-                            + 'successfully changed!'});
+                        + 'successfully changed!'});
                     }
                 });
             }
@@ -512,7 +512,7 @@ exports.addBlockedUser = function(req, res, next) {
                                 res.status(500).send({successful: false, text: err.message});
                             } else {
                                 res.status(200).send({successful: true, text: 'You have successfully blocked '
-                                    + blockedUser.firstName + ' ' + blockedUser.lastName});
+                                + blockedUser.firstName + ' ' + blockedUser.lastName});
                             }
                         });
                     }

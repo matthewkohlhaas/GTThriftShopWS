@@ -18,7 +18,7 @@ module.exports = function (app) {
     app.post('/users/from-token/blocked-users',users.addBlockedUser);
 
     app.delete('/users/from-token/blocked-users/:id', users.removeBlockedUser);
-    
+
     app.put('/users/from-token/first-name', users.updateFirstName);
 
     app.put('/users/from-token/last-name', users.updateLastName);
