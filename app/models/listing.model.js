@@ -8,7 +8,10 @@ var ListingSchema = new Schema({
     name: String,
     description: String,
     price: Number,
-    imageUrl: String,
+    imageUrl: [{
+        type: String,
+        ref: 'imageUrl'
+    }],
     category: {
         type: String,
         enum: CATEGORIES,

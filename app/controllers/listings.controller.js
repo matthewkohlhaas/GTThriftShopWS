@@ -83,6 +83,7 @@ exports.createListing = function(req, res, next) {
     var price = (req.body.price) ? parseFloat(req.body.price).toFixed(2) : req.body.price;
     var description = (req.body.description) ? req.body.description.trim() : '';
     var imageUrl = (req.body.imageUrl) ? req.body.imageUrl.trim() : '';
+    var imageUrlArr = [imageUrl];
     var user = authentication.getUserFromToken(req);
     var category = Listing.schema.path('category').defaultValue;
 
@@ -104,7 +105,7 @@ exports.createListing = function(req, res, next) {
                     name: name,
                     description: description,
                     price: price,
-                    imageUrl: imageUrl,
+                    imageUrl: imageUrlArr,
                     category: category,
                     user: user._id
 
