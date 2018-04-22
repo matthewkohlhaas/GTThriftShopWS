@@ -45,6 +45,18 @@ var UserSchema = new Schema({
         type: Boolean,
         default: false
     },
+    listings: [{
+        type : mongoose.Schema.Types.ObjectId,
+        ref: 'Listing'
+    }],
+    questions: [{
+        type : mongoose.Schema.Types.ObjectId,
+        ref: 'Question'
+    }],
+    offers: [{
+        type : mongoose.Schema.Types.ObjectId,
+        ref: 'Offer'
+    }],
     blockedUsers: [{
         type : mongoose.Schema.Types.ObjectId,
         ref: 'User'

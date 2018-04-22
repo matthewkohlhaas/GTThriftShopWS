@@ -7,6 +7,8 @@ module.exports = function() {
     require('../app/models/verification-token.model');
     require('../app/models/password-reset-token.model');
     require('../app/models/listing.model');
+    require('../app/models/question.model');
+    require('../app/models/offer.model');
     require('../app/models/ticket.model');
     require('../app/models/listing-flag.model');
     require('../app/models/user-flag.model');

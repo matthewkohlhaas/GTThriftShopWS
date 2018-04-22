@@ -1,10 +1,11 @@
-var jwt = require('jsonwebtoken');
-var config = require('../../config/config');
+const jwt = require('jsonwebtoken');
+const config = require('../../config/config');
 
 exports.getToken = function(req) {
     if (req && req.headers && req.headers.authorization) {
         return req.headers.authorization;
     }
+    return null;
 };
 
 exports.getUserFromToken = function(req) {
@@ -15,9 +16,8 @@ exports.getUserFromToken = function(req) {
         } catch(err) {
             return null;
         }
-    } else {
-        return null;
     }
+    return null;
 };
 
 exports.authenticateToken = function(req) {
